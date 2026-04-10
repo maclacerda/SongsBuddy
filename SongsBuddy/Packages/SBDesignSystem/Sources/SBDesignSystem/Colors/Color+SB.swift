@@ -8,11 +8,6 @@
 import SwiftUI
 
 public extension Color {
-    /// Creates a SwiftUI color from a SongsBuddy design token.
-    init(sb token: SBColorToken) {
-        self = token.value
-    }
-
     /// Creates a SwiftUI color from a hexadecimal color representation.
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

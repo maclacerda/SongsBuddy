@@ -13,10 +13,10 @@ public extension SBColorToken {
     var value: Color {
         switch self {
         case let .dark(token):
-            token.value
+            return token.value
 
         case let .light(token):
-            token.value
+            return token.value
         }
     }
 }
@@ -26,19 +26,19 @@ private extension SBDarkColorToken {
     var value: Color {
         switch self {
         case let .background(token):
-            token.darkValue
+            return token.darkValue
 
         case let .text(token):
-            token.darkValue
+            return token.darkValue
 
         case let .element(token):
-            token.darkValue
+            return token.darkValue
 
         case let .alphaInverted(token):
-            token.darkValue
+            return token.darkValue
 
         case let .base(token):
-            token.darkValue
+            return token.darkValue
         }
     }
 }
@@ -48,19 +48,19 @@ private extension SBLightColorToken {
     var value: Color {
         switch self {
         case let .background(token):
-            token.lightValue
+            return token.lightValue
 
         case let .text(token):
-            token.lightValue
+            return token.lightValue
 
         case let .element(token):
-            token.lightValue
+            return token.lightValue
 
         case let .alphaInverted(token):
-            token.lightValue
+            return token.lightValue
 
         case let .base(token):
-            token.lightValue
+            return token.lightValue
         }
     }
 }
@@ -70,10 +70,10 @@ private extension SBBackgroundColorToken {
     var darkValue: Color {
         switch self {
         case .background00:
-            Color(hex: "#000000")
+            return Color(hex: "#000000")
 
         case .backgroundAlpha01:
-            Color(hex: "#262626").opacity(0.8)
+            return Color(hex: "#262626").opacity(0.8)
         }
     }
 
@@ -81,10 +81,10 @@ private extension SBBackgroundColorToken {
     var lightValue: Color {
         switch self {
         case .background00:
-            Color(hex: "#F7F7F8")
+            return Color(hex: "#F7F7F8")
 
         case .backgroundAlpha01:
-            Color(hex: "#FFFFFF").opacity(0.9)
+            return Color(hex: "#FFFFFF").opacity(0.9)
         }
     }
 }
@@ -94,13 +94,13 @@ private extension SBTextColorToken {
     var darkValue: Color {
         switch self {
         case .text00:
-            Color(hex: "#737373")
+            return Color(hex: "#737373")
 
         case .text01:
-            Color(hex: "#ABABAB")
+            return Color(hex: "#ABABAB")
 
         case .text03:
-            Color(hex: "#FFFFFF")
+            return Color(hex: "#FFFFFF")
         }
     }
 
@@ -108,13 +108,13 @@ private extension SBTextColorToken {
     var lightValue: Color {
         switch self {
         case .text00:
-            Color(hex: "#8A8A8A")
+            return Color(hex: "#8A8A8A")
 
         case .text01:
-            Color(hex: "#6B6B6B")
+            return Color(hex: "#6B6B6B")
 
         case .text03:
-            Color(hex: "#111111")
+            return Color(hex: "#111111")
         }
     }
 }
@@ -124,7 +124,7 @@ private extension SBElementColorToken {
     var darkValue: Color {
         switch self {
         case .element07:
-            Color(hex: "#FFFFFF")
+            return Color(hex: "#FFFFFF")
         }
     }
 
@@ -132,7 +132,7 @@ private extension SBElementColorToken {
     var lightValue: Color {
         switch self {
         case .element07:
-            Color(hex: "#111111")
+            return Color(hex: "#111111")
         }
     }
 }
@@ -142,10 +142,10 @@ private extension SBAlphaInvertedColorToken {
     var darkValue: Color {
         switch self {
         case .alpha10:
-            Color.white.opacity(0.10)
+            return Color.white.opacity(0.10)
 
         case .alpha25:
-            Color.white.opacity(0.25)
+            return Color.white.opacity(0.25)
         }
     }
 
@@ -153,10 +153,10 @@ private extension SBAlphaInvertedColorToken {
     var lightValue: Color {
         switch self {
         case .alpha10:
-            Color.black.opacity(0.06)
+            return Color.black.opacity(0.06)
 
         case .alpha25:
-            Color.black.opacity(0.25)
+            return Color.black.opacity(0.25)
         }
     }
 }
@@ -166,19 +166,19 @@ private extension SBBaseColorToken {
     var darkValue: Color {
         switch self {
         case .white:
-            Color(hex: "#FFFFFF")
+            return Color(hex: "#FFFFFF")
 
         case .white20A:
-            Color.white.opacity(0.20)
+            return Color.white.opacity(0.20)
 
         case .white25A:
-            Color.white.opacity(0.25)
+            return Color.white.opacity(0.25)
 
         case .white60A:
-            Color.white.opacity(0.60)
+            return Color.white.opacity(0.60)
 
         case .white70A:
-            Color.white.opacity(0.70)
+            return Color.white.opacity(0.70)
         }
     }
 
@@ -186,19 +186,19 @@ private extension SBBaseColorToken {
     var lightValue: Color {
         switch self {
         case .white:
-            Color(hex: "#111111")
+            return Color(hex: "#111111")
 
         case .white20A:
-            Color.black.opacity(0.12)
+            return Color.black.opacity(0.12)
 
         case .white25A:
-            Color.black.opacity(0.16)
+            return Color.black.opacity(0.16)
 
         case .white60A:
-            Color.black.opacity(0.60)
+            return Color.black.opacity(0.60)
 
         case .white70A:
-            Color.black.opacity(0.70)
+            return Color.black.opacity(0.70)
         }
     }
 }

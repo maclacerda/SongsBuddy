@@ -21,6 +21,7 @@ public struct SBTypographyValue: Sendable {
     /// The SwiftUI font weight.
     public let fontWeight: Font.Weight
 
+    // MARK: - Initializer
     public init(
         fontFamily: SBFontFamily,
         fontSize: CGFloat,
@@ -39,7 +40,7 @@ public extension SBTypographyToken {
     var value: SBTypographyValue {
         switch self {
         case .display16:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFDemiBold,
                 fontSize: 16,
                 lineHeightMultiplier: 1.2,
@@ -47,7 +48,7 @@ public extension SBTypographyToken {
             )
 
         case .display18:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFDemiBold,
                 fontSize: 18,
                 lineHeightMultiplier: 1.08,
@@ -55,7 +56,7 @@ public extension SBTypographyToken {
             )
 
         case .display20:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFDemiBold,
                 fontSize: 20,
                 lineHeightMultiplier: 1.2,
@@ -63,7 +64,7 @@ public extension SBTypographyToken {
             )
 
         case .display24:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFDemiBold,
                 fontSize: 24,
                 lineHeightMultiplier: 1.2,
@@ -71,7 +72,7 @@ public extension SBTypographyToken {
             )
 
         case .display32:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFDemiBold,
                 fontSize: 32,
                 lineHeightMultiplier: 1.2,
@@ -79,7 +80,7 @@ public extension SBTypographyToken {
             )
 
         case .text12:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFMedium,
                 fontSize: 12,
                 lineHeightMultiplier: 1.4,
@@ -87,7 +88,7 @@ public extension SBTypographyToken {
             )
 
         case .text14:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFMedium,
                 fontSize: 14,
                 lineHeightMultiplier: 1.2,
@@ -95,7 +96,7 @@ public extension SBTypographyToken {
             )
 
         case .text16:
-            SBTypographyValue(
+            return SBTypographyValue(
                 fontFamily: .articulatCFMedium,
                 fontSize: 16,
                 lineHeightMultiplier: 1.2,

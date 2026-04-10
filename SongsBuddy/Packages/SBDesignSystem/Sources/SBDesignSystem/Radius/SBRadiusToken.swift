@@ -35,4 +35,9 @@ public enum SBRadiusToken: CGFloat, CaseIterable, Sendable {
 
     /// 100pt radius (pill / fully rounded).
     case radius100 = 100
+
+    /// Returns the numeric value of the radius token.
+    public var value: CGFloat {
+        return self.rawValue
+    }
 }
