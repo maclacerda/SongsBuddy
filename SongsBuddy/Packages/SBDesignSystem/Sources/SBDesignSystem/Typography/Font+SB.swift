@@ -11,6 +11,10 @@ public extension Font {
     /// Creates a SwiftUI font from a SongsBuddy typography token.
     static func sb(_ token: SBTypographyToken) -> Font {
         let value = token.value
-        return .custom(value.fontFamily.rawValue, size: value.fontSize)
+
+        return .custom(
+            value.fontFamily.value,
+            size: value.fontSize
+        )
     }
 }

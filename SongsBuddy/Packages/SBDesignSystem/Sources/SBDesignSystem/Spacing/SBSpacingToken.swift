@@ -38,4 +38,9 @@ public enum SBSpacingToken: CGFloat, CaseIterable, Sendable {
 
     /// 40pt spacing.
     case spacing40 = 40
+
+    /// Returns the numeric value of the spacing token.
+    public var value: CGFloat {
+        return self.rawValue
+    }
 }

@@ -14,4 +14,9 @@ public enum SBFontFamily: String, Sendable {
 
     /// Articulat CF DemiBold font.
     case articulatCFDemiBold = "ArticulatCF-DemiBold"
+
+    /// Returns the font family name.
+    public var value: String {
+        return self.rawValue
+    }
 }
