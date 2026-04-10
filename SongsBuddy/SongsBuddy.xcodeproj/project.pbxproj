@@ -15,6 +15,8 @@
 		0F7099F02F8879EB0064AF8D /* SBSongsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 0F7099EF2F8879EB0064AF8D /* SBSongsFeature */; };
 		0F7099F32F8879F30064AF8D /* SBSongDetailsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 0F7099F22F8879F30064AF8D /* SBSongDetailsFeature */; };
 		0F7099F62F8879FE0064AF8D /* SBAlbumFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 0F7099F52F8879FE0064AF8D /* SBAlbumFeature */; };
+		0F709A192F8885360064AF8D /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0F709A182F8885360064AF8D /* SBDesignSystem */; };
+		0F709A242F88858B0064AF8D /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0F709A232F88858B0064AF8D /* SBDesignSystem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +42,9 @@
 				0F7099EA2F8879D20064AF8D /* SBData in Frameworks */,
 				0F7099E42F8879BB0064AF8D /* SBCore in Frameworks */,
 				0F7099E12F8879AC0064AF8D /* SBDesignSystem in Frameworks */,
+				0F709A192F8885360064AF8D /* SBDesignSystem in Frameworks */,
 				0F7099F02F8879EB0064AF8D /* SBSongsFeature in Frameworks */,
+				0F709A242F88858B0064AF8D /* SBDesignSystem in Frameworks */,
 				0F7099F32F8879F30064AF8D /* SBSongDetailsFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -92,6 +96,8 @@
 				0F7099EF2F8879EB0064AF8D /* SBSongsFeature */,
 				0F7099F22F8879F30064AF8D /* SBSongDetailsFeature */,
 				0F7099F52F8879FE0064AF8D /* SBAlbumFeature */,
+				0F709A182F8885360064AF8D /* SBDesignSystem */,
+				0F709A232F88858B0064AF8D /* SBDesignSystem */,
 			);
 			productName = SongsBuddy;
 			productReference = 0F78CD6B2F886C64009D1498 /* SongsBuddy.app */;
@@ -122,7 +128,6 @@
 			mainGroup = 0F78CD622F886C64009D1498;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				0F7099DF2F8879AC0064AF8D /* XCLocalSwiftPackageReference "Packages/SBDesignSystem" */,
 				0F7099E22F8879BB0064AF8D /* XCLocalSwiftPackageReference "Packages/SBCore" */,
 				0F7099E52F8879C80064AF8D /* XCLocalSwiftPackageReference "Packages/SBDomain" */,
 				0F7099E82F8879D20064AF8D /* XCLocalSwiftPackageReference "Packages/SBData" */,
@@ -130,6 +135,7 @@
 				0F7099EE2F8879EB0064AF8D /* XCLocalSwiftPackageReference "Packages/SBSongsFeature" */,
 				0F7099F12F8879F30064AF8D /* XCLocalSwiftPackageReference "Packages/SBSongDetailsFeature" */,
 				0F7099F42F8879FE0064AF8D /* XCLocalSwiftPackageReference "Packages/SBAlbumFeature" */,
+				0F709A222F88858B0064AF8D /* XCLocalSwiftPackageReference "Packages/SBDesignSystem" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F78CD6C2F886C64009D1498 /* Products */;
@@ -383,10 +389,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		0F7099DF2F8879AC0064AF8D /* XCLocalSwiftPackageReference "Packages/SBDesignSystem" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/SBDesignSystem;
-		};
 		0F7099E22F8879BB0064AF8D /* XCLocalSwiftPackageReference "Packages/SBCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SBCore;
@@ -414,6 +416,10 @@
 		0F7099F42F8879FE0064AF8D /* XCLocalSwiftPackageReference "Packages/SBAlbumFeature" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SBAlbumFeature;
+		};
+		0F709A222F88858B0064AF8D /* XCLocalSwiftPackageReference "Packages/SBDesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SBDesignSystem;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -449,6 +455,14 @@
 		0F7099F52F8879FE0064AF8D /* SBAlbumFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SBAlbumFeature;
+		};
+		0F709A182F8885360064AF8D /* SBDesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SBDesignSystem;
+		};
+		0F709A232F88858B0064AF8D /* SBDesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SBDesignSystem;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
