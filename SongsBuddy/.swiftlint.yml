@@ -1,0 +1,32 @@
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - redundant_nil_coalescing
+  - sorted_imports
+
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+
+included:
+  - App
+  - Packages
+
+excluded:
+  - Carthage
+  - Pods
+  - .build
+
+identifier_name:
+  min_length: 2
+
+type_name:
+  min_length: 3
+
+function_body_length:
+  warning: 60
+  error: 100
+
+file_length:
+  warning: 400
+  error: 800
