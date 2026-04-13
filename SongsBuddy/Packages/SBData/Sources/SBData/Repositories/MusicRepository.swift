@@ -20,12 +20,18 @@ public struct MusicRepository: MusicRepositoryProtocol {
     }
 
     public func searchSongs(
-        term: String
+        term: String,
+        offset: Int,
+        limit: Int
     ) async throws -> [Song] {
-        let dtos = try await self.remoteDataSource.searchSongs(term: term)
+        let response = try await remoteDataSource.searchSongs(
+            term: term,
+            offset: offset,
+            limit: limit
+        )
 
-        return dtos.compactMap { dto in
-            return SongDTOMapper.map(dto)
+        return response.compactMap {
+            return SongDTOMapper.map($0)
         }
     }
 }
