@@ -1,0 +1,270 @@
+//
+//  SongDetailsView.swift
+//  SBSongDetailsFeature
+//
+//  Created by Marcos Ferreira on 4/13/26.
+//
+
+import SBAlbumFeature
+import SBData
+import SBDesignSystem
+import SwiftUI
+
+public struct SongDetailsView: View {
+    // MARK: - Properties
+    @State private var viewModel: SongDetailsViewModel
+    @State private var isShowingMoreOptions: Bool = false
+    @State private var isShowingAlbum: Bool = false
+
+    // MARK: - Initializer
+    public init(
+        viewModel: SongDetailsViewModel
+    ) {
+        self._viewModel = State(
+            initialValue: viewModel
+        )
+    }
+
+    public var body: some View {
+        ZStack {
+            SBColors.screenBackground
+                .ignoresSafeArea()
+
+            VStack(spacing: .zero) {
+                Spacer()
+                    .frame(
+                        height: 24
+                    )
+
+                artworkView
+
+                Spacer()
+
+                VStack(
+                    alignment: .leading,
+                    spacing: .zero
+                ) {
+                    Text(viewModel.item.title)
+                        .font(.sb(.display24))
+                        .foregroundStyle(SBColors.primaryText)
+                        .lineLimit(2)
+
+                    HStack(
+                        alignment: .center,
+                        spacing: SBSpacingToken.spacing12.value
+                    ) {
+                        Text(viewModel.item.artistName)
+                            .font(.sb(.text16))
+                            .foregroundStyle(SBColors.secondaryText)
+                            .lineLimit(1)
+
+                        Spacer()
+
+                        repeatButton
+                    }
+                    .padding(.top, SBSpacingToken.spacing8.value)
+                }
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: .leading
+                )
+                .padding(.horizontal, SBSpacingToken.spacing24.value)
+
+                Spacer()
+                    .frame(
+                        height: 20
+                    )
+
+                VStack(
+                    spacing: SBSpacingToken.spacing24.value
+                ) {
+                    progressPlaceholderView
+                    controlsPlaceholderView
+                }
+                .padding(.horizontal, SBSpacingToken.spacing24.value)
+                .padding(.bottom, 33)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(viewModel.item.albumName ?? viewModel.item.artistName)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                moreOptionsButton
+            }
+        }
+        .toolbarBackground(
+            .visible,
+            for: .navigationBar
+        )
+        .toolbarBackground(
+            SBColors.screenBackground,
+            for: .navigationBar
+        )
+        .overlay {
+            if isShowingMoreOptions {
+                ZStack(alignment: .bottom) {
+                    Color.black.opacity(0.2)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            isShowingMoreOptions = false
+                        }
+
+                    MoreOptionsSheetView(
+                        title: viewModel.item.title,
+                        artistName: viewModel.item.artistName,
+                        onViewAlbum: {
+                            isShowingMoreOptions = false
+                            isShowingAlbum = true
+                        }
+                    )
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 192)
+                    .transition(.move(edge: .bottom))
+                }
+                .ignoresSafeArea()
+            }
+        }
+        .animation(
+            .easeInOut(duration: 0.2),
+            value: isShowingMoreOptions
+        )
+        .navigationDestination(isPresented: $isShowingAlbum) {
+            if let albumID = viewModel.item.albumID {
+                let viewModel = AlbumDetailsViewModel(
+                    albumID: albumID,
+                    albumTitle: viewModel.item.albumName ?? "",
+                    artistName: viewModel.item.artistName,
+                    artworkURL: viewModel.item.artworkURL,
+                    repository: MusicRepositoryFactory.makeDefault()
+                )
+
+                AlbumDetailsView(
+                    viewModel: viewModel
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Subviews
+private extension SongDetailsView {
+    var artworkView: some View {
+        ZStack {
+            RoundedRectangle(
+                cornerRadius: SBRadiusToken.radius32.value
+            )
+            .fill(SBColors.searchBackground)
+
+            AsyncImage(
+                url: viewModel.item.artworkURL
+            ) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFit()
+
+                case .empty, .failure:
+                    placeholderArtworkView
+
+                @unknown default:
+                    placeholderArtworkView
+                }
+            }
+            .frame(
+                width: 264,
+                height: 264
+            )
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: SBRadiusToken.radius32.value
+                )
+            )
+        }
+        .frame(
+            width: 264,
+            height: 264
+        )
+    }
+
+    var placeholderArtworkView: some View {
+        RoundedRectangle(
+            cornerRadius: SBRadiusToken.radius32.value
+        )
+        .fill(SBColors.searchBackground)
+        .overlay {
+            Image(systemName: "music.note")
+                .font(.system(size: 56, weight: .regular))
+                .foregroundStyle(SBColors.primaryIcon)
+        }
+    }
+
+    var repeatButton: some View {
+        Image(systemName: "repeat")
+            .font(.system(size: 24, weight: .regular))
+            .foregroundStyle(SBColors.primaryIcon)
+            .frame(width: 24, height: 24)
+    }
+
+    var progressPlaceholderView: some View {
+        VStack(spacing: SBSpacingToken.spacing8.value) {
+            Capsule()
+                .fill(SBColors.progressTrack)
+                .frame(height: 8)
+                .overlay(alignment: .leading) {
+                    Capsule()
+                        .fill(SBColors.progressFill)
+                        .frame(width: 120, height: 8)
+                }
+
+            HStack {
+                Text("0:00")
+                    .font(.sb(.text12))
+                    .foregroundStyle(SBColors.tertiaryText)
+
+                Spacer()
+
+                Text("0:30")
+                    .font(.sb(.text12))
+                    .foregroundStyle(SBColors.tertiaryText)
+            }
+        }
+    }
+
+    var controlsPlaceholderView: some View {
+        HStack {
+            Image(systemName: "backward.fill")
+                .font(.system(size: 28, weight: .regular))
+                .foregroundStyle(SBColors.primaryIcon)
+
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(SBColors.searchBackground)
+                    .frame(width: 72, height: 72)
+
+                Image(systemName: "play.fill")
+                    .font(.system(size: 28, weight: .regular))
+                    .foregroundStyle(SBColors.primaryIcon)
+            }
+
+            Spacer()
+
+            Image(systemName: "forward.fill")
+                .font(.system(size: 28, weight: .regular))
+                .foregroundStyle(SBColors.primaryIcon)
+        }
+        .padding(.horizontal, SBSpacingToken.spacing24.value)
+    }
+
+    var moreOptionsButton: some View {
+        Button {
+            self.isShowingMoreOptions = true
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(SBColors.primaryIcon)
+        }
+    }
+}

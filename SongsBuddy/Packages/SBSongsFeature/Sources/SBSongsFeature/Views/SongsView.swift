@@ -7,12 +7,14 @@
 
 import Observation
 import SBDesignSystem
+import SBSongDetailsFeature
 import SwiftUI
 
 public struct SongsView: View {
     // MARK: - Properties
     @State private var viewModel: SongsViewModel
     @State private var scrollOffset: CGFloat = .zero
+    @State private var selectedSong: SongRowItem?
 
     private let expandedHeaderHeight: CGFloat = 124
     private let collapsedHeaderHeight: CGFloat = 104
@@ -35,44 +37,64 @@ public struct SongsView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
-            SBColors.screenBackground
-                .ignoresSafeArea()
+        NavigationStack {
+            ZStack(alignment: .topLeading) {
+                SBColors.screenBackground
+                    .ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(
-                    alignment: .leading,
-                    spacing: .zero
-                ) {
-                    Color.clear
-                        .frame(height: self.currentHeaderHeight + self.contentTopSpacing)
+                ScrollView(showsIndicators: false) {
+                    VStack(
+                        alignment: .leading,
+                        spacing: .zero
+                    ) {
+                        Color.clear
+                            .frame(height: self.currentHeaderHeight + self.contentTopSpacing)
 
-                    contentView
-                }
-                .padding(.horizontal, SBSpacingToken.spacing20.value)
-                .padding(.bottom, SBSpacingToken.spacing24.value)
-                .background(
-                    ScrollOffsetObserver { offset in
-                        let normalizedOffset = max(offset, 0)
-
-                        guard abs(normalizedOffset - self.scrollOffset) > 0.5 else {
-                            return
-                        }
-
-                        self.scrollOffset = normalizedOffset
+                        contentView
                     }
-                    .frame(width: 0, height: 0)
+                    .padding(.horizontal, SBSpacingToken.spacing20.value)
+                    .padding(.bottom, SBSpacingToken.spacing24.value)
+                    .background(
+                        ScrollOffsetObserver { offset in
+                            let normalizedOffset = max(offset, 0)
+
+                            guard abs(normalizedOffset - self.scrollOffset) > 0.5 else {
+                                return
+                            }
+
+                            self.scrollOffset = normalizedOffset
+                        }
+                            .frame(width: 0, height: 0)
+                    )
+                }
+
+                SBSongsHeaderView(
+                    isCollapsed: self.isCollapsed,
+                    searchText: self.$viewModel.searchText
+                )
+                .frame(height: self.currentHeaderHeight, alignment: .top)
+                .padding(.horizontal, SBSpacingToken.spacing20.value)
+                .background(SBColors.screenBackground)
+                .animation(.easeInOut(duration: 0.18), value: self.isCollapsed)
+            }
+            .navigationDestination(item: $selectedSong) { item in
+                let item = SongDetailsItem(
+                    title: item.title,
+                    artistName: item.artistName,
+                    artworkURL: item.artworkURL,
+                    albumName: item.albumName,
+                    previewURL: item.previewURL,
+                    albumID: item.albumID
+                )
+
+                let viewModel = SongDetailsViewModel(
+                    item: item
+                )
+
+                SongDetailsView(
+                    viewModel: viewModel
                 )
             }
-
-            SBSongsHeaderView(
-                isCollapsed: self.isCollapsed,
-                searchText: self.$viewModel.searchText
-            )
-            .frame(height: self.currentHeaderHeight, alignment: .top)
-            .padding(.horizontal, SBSpacingToken.spacing20.value)
-            .background(SBColors.screenBackground)
-            .animation(.easeInOut(duration: 0.18), value: self.isCollapsed)
         }
         .preferredColorScheme(.dark)
         .task {
@@ -99,14 +121,19 @@ private extension SongsView {
             AnyView(
                 LazyVStack(spacing: .zero) {
                     ForEach(items) { item in
-                        SongRowView(item: item)
-                            .onAppear {
-                                Task {
-                                    await viewModel.loadNextPageIfneeded(
-                                        currentItemID: item.id
-                                    )
-                                }
+                        Button {
+                            self.selectedSong = item
+                        } label: {
+                            SongRowView(item: item)
+                        }
+                        .buttonStyle(.plain)
+                        .onAppear {
+                            Task {
+                                await viewModel.loadNextPageIfneeded(
+                                    currentItemID: item.id
+                                )
                             }
+                        }
                     }
                 }
             )

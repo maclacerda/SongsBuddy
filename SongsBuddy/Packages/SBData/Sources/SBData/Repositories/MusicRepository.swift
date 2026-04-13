@@ -34,4 +34,16 @@ public struct MusicRepository: MusicRepositoryProtocol {
             return SongDTOMapper.map($0)
         }
     }
+
+    public func fetchAlbumSongs(
+        albumID: Int
+    ) async throws -> [Song] {
+        let response = try await remoteDataSource.fetchAlbumSongs(
+            albumID: albumID
+        )
+
+        return response.compactMap {
+            return SongDTOMapper.map($0)
+        }
+    }
 }

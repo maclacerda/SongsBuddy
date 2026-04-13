@@ -24,11 +24,18 @@ enum SongDTOMapper {
             URL.init(string:)
         )
 
+        let previewURL = dto.previewUrl.flatMap(
+            URL.init(string:)
+        )
+
         return Song(
             id: id,
             trackName: trackName,
             artistName: artistName,
-            artworkURL: artworkURL
+            artworkURL: artworkURL,
+            previewURL: previewURL,
+            albumName: dto.collectionName,
+            albumID: dto.collectionId
         )
     }
 }
