@@ -14,19 +14,16 @@ public struct SongRowView: View {
     private let item: SongRowItem
 
     // MARK: - Initializer
-    public init(item: SongRowItem) {
+    public init(
+        item: SongRowItem
+    ) {
         self.item = item
     }
 
+    // MARK: - Body
     public var body: some View {
-        return HStack(spacing: SBSpacingToken.spacing16.value) {
-            RoundedRectangle(cornerRadius: SBRadiusToken.radius8.value)
-                .fill(SBColors.searchBackground)
-                .frame(width: 52, height: 52)
-                .overlay {
-                    Image(systemName: "music.note")
-                        .foregroundStyle(SBColors.primaryIcon)
-                }
+        HStack(spacing: SBSpacingToken.spacing16.value) {
+            artworkView
 
             VStack(
                 alignment: .leading,
@@ -52,8 +49,45 @@ public struct SongRowView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: 68)
         .contentShape(Rectangle())
-        .listRowInsets(EdgeInsets())
-        .listRowSeparator(.hidden)
-        .listRowBackground(SBColors.screenBackground)
+    }
+}
+
+// MARK: - Views
+private extension SongRowView {
+    var artworkView: some View {
+        AsyncImage(url: self.item.artworkURL) { phase in
+            switch phase {
+            case let .success(image):
+                image
+                    .resizable()
+                    .scaledToFill()
+
+            case .empty, .failure:
+                placeholderArtworkView
+
+            @unknown default:
+                placeholderArtworkView
+            }
+        }
+        .frame(
+            width: 52,
+            height: 52
+        )
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: SBRadiusToken.radius8.value
+            )
+        )
+    }
+
+    var placeholderArtworkView: some View {
+        RoundedRectangle(
+            cornerRadius: SBRadiusToken.radius8.value
+        )
+        .fill(SBColors.searchBackground)
+        .overlay {
+            Image(systemName: "music.note")
+                .foregroundStyle(SBColors.primaryIcon)
+        }
     }
 }

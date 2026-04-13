@@ -10,7 +10,9 @@ import SBCore
 
 protocol MusicRemoteDataSourceProtocol: Sendable {
     func searchSongs(
-        term: String
+        term: String,
+        offset: Int,
+        limit: Int
     ) async throws -> [SongDTO]
 }
 
@@ -26,11 +28,17 @@ struct ITunesMusicRemoteDataSource: MusicRemoteDataSourceProtocol {
     }
 
     func searchSongs(
-        term: String
+        term: String,
+        offset: Int,
+        limit: Int
     ) async throws -> [SongDTO] {
-        let request: SearchSongsRequest = .search(term: term)
+        let request: SearchSongsRequest = .search(
+            term: term,
+            offset: offset,
+            limit: limit
+        )
 
-        let response = try await self.httpClient.send(
+        let response = try await httpClient.send(
             request,
             responseType: SongSearchResponseDTO.self
         )

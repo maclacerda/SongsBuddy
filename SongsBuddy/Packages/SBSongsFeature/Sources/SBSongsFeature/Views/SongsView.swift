@@ -29,7 +29,7 @@ public struct SongsView: View {
 
     // MARK: - Initializer
     public init(
-        viewModel: SongsViewModel = SongsViewModel()
+        viewModel: SongsViewModel
     ) {
         self._viewModel = State(initialValue: viewModel)
     }
@@ -66,7 +66,8 @@ public struct SongsView: View {
             }
 
             SBSongsHeaderView(
-                isCollapsed: self.isCollapsed
+                isCollapsed: self.isCollapsed,
+                searchText: self.$viewModel.searchText
             )
             .frame(height: self.currentHeaderHeight, alignment: .top)
             .padding(.horizontal, SBSpacingToken.spacing20.value)
@@ -74,6 +75,12 @@ public struct SongsView: View {
             .animation(.easeInOut(duration: 0.18), value: self.isCollapsed)
         }
         .preferredColorScheme(.dark)
+        .task {
+            await viewModel.loadInitialSongs()
+        }
+        .onChange(of: viewModel.searchText) { _, _ in
+            viewModel.scheduleSearch()
+        }
     }
 }
 
@@ -88,18 +95,30 @@ private extension SongsView {
                     .frame(maxWidth: .infinity)
             )
 
-        case let .content(items):
+        case .content(let items):
             AnyView(
                 LazyVStack(spacing: .zero) {
                     ForEach(items) { item in
                         SongRowView(item: item)
+                            .onAppear {
+                                Task {
+                                    await viewModel.loadNextPageIfneeded(
+                                        currentItemID: item.id
+                                    )
+                                }
+                            }
                     }
                 }
             )
 
-        case let .empty(searchTerm):
+        case .empty(let searchTerm):
             AnyView(
                 emptyStateView(searchTerm: searchTerm)
+            )
+
+        case .error(let message):
+            AnyView(
+                errorStateView(message: message)
             )
         }
     }
@@ -118,6 +137,42 @@ private extension SongsView {
             Text("\"\(searchTerm)\" returned no matches.")
                 .font(.sb(.text14))
                 .foregroundStyle(SBColors.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(SBSpacingToken.spacing24.value)
+    }
+
+    @ViewBuilder
+    func errorStateView(
+        message: String
+    ) -> some View {
+        VStack(
+            spacing: SBSpacingToken.spacing12.value
+        ) {
+            Text("Unable to load songs")
+                .font(.sb(.display20))
+                .foregroundStyle(SBColors.primaryText)
+
+            Text(message)
+                .font(.sb(.text14))
+                .foregroundStyle(SBColors.secondaryText)
+                .multilineTextAlignment(.center)
+
+            Button("Retry") {
+                Task {
+                    await self.viewModel.retry()
+                }
+            }
+            .font(.sb(.text16))
+            .foregroundStyle(SBColors.primaryText)
+            .padding(.horizontal, SBSpacingToken.spacing16.value)
+            .padding(.vertical, SBSpacingToken.spacing12.value)
+            .background(SBColors.searchBackground)
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: SBRadiusToken.radius12.value
+                )
+            )
         }
         .frame(maxWidth: .infinity)
         .padding(SBSpacingToken.spacing24.value)

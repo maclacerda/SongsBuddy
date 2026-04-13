@@ -11,6 +11,7 @@ import SwiftUI
 struct SBSongsHeaderView: View {
     // MARK: - Properties
     let isCollapsed: Bool
+    @Binding var searchText: String
 
     // MARK: - Body
     var body: some View {
@@ -51,11 +52,23 @@ private extension SBSongsHeaderView {
                     .font(.system(size: 24, weight: .regular))
                     .foregroundStyle(SBColors.searchIcon)
 
-                Text("Search")
-                    .font(.sb(.text16))
+                TextField(
+                    "",
+                    text: self.$searchText,
+                    prompt: Text(
+                        "Search"
+                    )
                     .foregroundStyle(SBColors.searchPlaceholder)
+                )
+                .font(.sb(.text16))
+                .foregroundStyle(SBColors.primaryText)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .tint(SBColors.primaryText)
 
-                Spacer()
+                Spacer(
+                    minLength: .zero
+                )
             }
             .padding(.horizontal, SBSpacingToken.spacing16.value)
             .frame(height: 60)

@@ -9,8 +9,10 @@ import Foundation
 
 /// Defines the repository contract for music-related operations.
 public protocol MusicRepositoryProtocol: Sendable {
-    /// Searches songs by a given search term.
+    /// Searches songs by a given search term using pagination parameters.
     func searchSongs(
-        term: String
+        term: String,
+        offset: Int,
+        limit: Int
     ) async throws -> [Song]
 }
