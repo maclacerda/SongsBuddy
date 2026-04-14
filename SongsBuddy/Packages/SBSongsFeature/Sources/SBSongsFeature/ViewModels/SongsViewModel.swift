@@ -21,13 +21,15 @@ public final class SongsViewModel {
     private var searchTask: Task<Void, Never>?
 
     private let initialSearchTerm: String = "rock"
-    private let limit: Int = 20
+    private let remoteFetchLimit: Int = 200
+    private let pageSize: Int = 20
 
     private var currentTerm: String = ""
-    private var currentOffset: Int = 0
+    private var allItems: [SongRowItem] = []
+    private var visibleItems: [SongRowItem] = []
+    private var currentPage: Int = 0
     private var hasMoreResults: Bool = true
     private var isLoadingNextPage: Bool = false
-    private var items: [SongRowItem] = []
     private var lastPaginationTriggerItemID: Int?
     private var currentSearchSessionID: UUID = UUID()
 
@@ -42,7 +44,7 @@ public final class SongsViewModel {
 
     // MARK: - Methods
     public func loadInitialSongs() async {
-        guard case .idle = self.state else {
+        guard case .idle = state else {
             return
         }
 
@@ -118,7 +120,7 @@ public final class SongsViewModel {
 
         lastPaginationTriggerItemID = currentItemID
 
-        await loadNextPage()
+        loadNextPage()
     }
 
     private func startNewSearch(
@@ -126,52 +128,70 @@ public final class SongsViewModel {
     ) async {
         currentSearchSessionID = UUID()
         currentTerm = term
-        currentOffset = 0
+        visibleItems = []
+        allItems = []
+        currentPage = 0
         hasMoreResults = true
         isLoadingNextPage = false
         lastPaginationTriggerItemID = nil
 
-        items = []
-
         state = .loading
 
-        await fetchPage(
-            resetResults: true,
+        await fetchAllResults(
             searchSessionID: currentSearchSessionID
         )
     }
 
-    private func loadNextPage() async {
+    private func loadNextPage() {
         guard hasMoreResults else {
             return
         }
 
         isLoadingNextPage = true
 
-        await fetchPage(
-            resetResults: false,
-            searchSessionID: currentSearchSessionID
+        let startIndex = currentPage * pageSize
+
+        let endIndex = min(
+            startIndex + pageSize,
+            allItems.count
         )
 
+        guard startIndex < endIndex else {
+            hasMoreResults = false
+            isLoadingNextPage = false
+
+            return
+        }
+
+        let nextPageItems = Array(
+            allItems[startIndex..<endIndex]
+        )
+
+        visibleItems.append(contentsOf: nextPageItems)
+        currentPage += 1
+
+        hasMoreResults = visibleItems.count < allItems.count
+        lastPaginationTriggerItemID = nil
+
         isLoadingNextPage = false
+
+        state = .content(items: visibleItems)
     }
 
-    private func fetchPage(
-        resetResults: Bool,
+    private func fetchAllResults(
         searchSessionID: UUID
     ) async {
         do {
+            let response = try await repository.searchSongs(
+                term: currentTerm,
+                limit: remoteFetchLimit
+            )
+
             guard searchSessionID == currentSearchSessionID else {
                 return
             }
 
-            let songs = try await repository.searchSongs(
-                term: currentTerm,
-                offset: currentOffset,
-                limit: limit
-            )
-
-            let items = songs.map { song in
+            let items = response.items.map { song in
                 return SongRowItem(
                     id: song.id,
                     title: song.trackName,
@@ -183,36 +203,29 @@ public final class SongsViewModel {
                 )
             }
 
-            if resetResults {
-                self.items = deDuplicatedItems(from: items)
-            } else {
-                self.items = deDuplicatedItems(
-                    from: self.items + items
-                )
-            }
+            allItems = removeDuplicatedItems(from: items)
 
-            currentOffset += items.count
-            hasMoreResults = items.count == limit
+            visibleItems = []
+            currentPage = 0
 
-            if items.isEmpty {
+            hasMoreResults = !allItems.isEmpty
+            lastPaginationTriggerItemID = nil
+
+            loadNextPage()
+
+            if visibleItems.isEmpty {
                 self.state = .empty(searchTerm: currentTerm)
 
                 return
             }
 
-            state = .content(items: self.items)
+            state = .content(items: visibleItems)
         } catch {
             guard searchSessionID == currentSearchSessionID else {
                 return
             }
 
-            if items.isEmpty {
-                state = .error(message: "Something went wrong. Please try again.")
-
-                return
-            }
-
-            state = .content(items: items)
+            state = .error(message: "Something went wrong. Please try again.")
         }
     }
 
@@ -220,18 +233,18 @@ public final class SongsViewModel {
         currentItemID: Int
     ) -> Bool {
         let thresholdIndex = max(
-            items.count - 5,
+            visibleItems.count - 5,
             0
         )
 
-        guard let currentIndex = items.firstIndex(where: { $0.id == currentItemID }) else {
+        guard let currentIndex = visibleItems.firstIndex(where: { $0.id == currentItemID }) else {
             return false
         }
 
         return currentIndex >= thresholdIndex
     }
 
-    private func deDuplicatedItems(
+    private func removeDuplicatedItems(
         from items: [SongRowItem]
     ) -> [SongRowItem] {
         var seenIDs: Set<Int> = []

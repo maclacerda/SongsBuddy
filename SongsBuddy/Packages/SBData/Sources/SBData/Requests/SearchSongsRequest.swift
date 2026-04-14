@@ -11,7 +11,6 @@ import SBCore
 enum SearchSongsRequest: URLRequestProtocol {
     case search(
         term: String,
-        offset: Int,
         limit: Int
     )
 
@@ -21,11 +20,10 @@ enum SearchSongsRequest: URLRequestProtocol {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case let .search(term, offset, limit):
+        case let .search(term, limit):
             return [
                 URLQueryItem(name: "term", value: term),
                 URLQueryItem(name: "entity", value: "song"),
-                URLQueryItem(name: "offset", value: "\(offset)"),
                 URLQueryItem(name: "limit", value: "\(limit)")
             ]
         }
