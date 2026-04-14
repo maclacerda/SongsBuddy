@@ -15,4 +15,9 @@ public protocol MusicRepositoryProtocol: Sendable {
         offset: Int,
         limit: Int
     ) async throws -> [Song]
+
+    /// Fetches all songs for a given album identifier.
+    func fetchAlbumSongs(
+        albumID: Int
+    ) async throws -> [Song]
 }

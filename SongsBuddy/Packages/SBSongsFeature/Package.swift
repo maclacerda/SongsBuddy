@@ -15,14 +15,16 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SBDesignSystem"),
-        .package(path: "../SBDomain")
+        .package(path: "../SBDomain"),
+        .package(path: "../SBSongDetailsFeature")
     ],
     targets: [
         .target(
             name: "SBSongsFeature",
             dependencies: [
                 .product(name: "SBDesignSystem", package: "SBDesignSystem"),
-                .product(name: "SBDomain", package: "SBDomain")
+                .product(name: "SBDomain", package: "SBDomain"),
+                .product(name: "SBSongDetailsFeature", package: "SBSongDetailsFeature")
             ]
         ),
         .testTarget(

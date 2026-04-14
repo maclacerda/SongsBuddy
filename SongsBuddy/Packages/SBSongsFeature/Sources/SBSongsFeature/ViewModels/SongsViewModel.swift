@@ -176,7 +176,10 @@ public final class SongsViewModel {
                     id: song.id,
                     title: song.trackName,
                     artistName: song.artistName,
-                    artworkURL: song.artworkURL
+                    artworkURL: song.artworkURL,
+                    previewURL: song.previewURL,
+                    albumName: song.albumName,
+                    albumID: song.albumID
                 )
             }
 

@@ -14,6 +14,10 @@ protocol MusicRemoteDataSourceProtocol: Sendable {
         offset: Int,
         limit: Int
     ) async throws -> [SongDTO]
+
+    func fetchAlbumSongs(
+        albumID: Int
+    ) async throws -> [SongDTO]
 }
 
 struct ITunesMusicRemoteDataSource: MusicRemoteDataSourceProtocol {
@@ -44,5 +48,22 @@ struct ITunesMusicRemoteDataSource: MusicRemoteDataSourceProtocol {
         )
 
         return response.results
+    }
+
+    func fetchAlbumSongs(
+        albumID: Int
+    ) async throws -> [SongDTO] {
+        let request: AlbumSongsRequest = .fetch(
+            albumId: albumID
+        )
+
+        let response = try await httpClient.send(
+            request,
+            responseType: SongSearchResponseDTO.self
+        )
+
+        return response.results.compactMap {
+            return $0.trackId == nil ? nil : $0
+        }
     }
 }
