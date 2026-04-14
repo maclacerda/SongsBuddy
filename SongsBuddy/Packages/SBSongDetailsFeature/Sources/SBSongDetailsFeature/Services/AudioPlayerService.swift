@@ -71,6 +71,7 @@ final class AudioPlayerService: NSObject {
         }
 
         player?.pause()
+        player?.replaceCurrentItem(with: nil)
         player = nil
     }
 

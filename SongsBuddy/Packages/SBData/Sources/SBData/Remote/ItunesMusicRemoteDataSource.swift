@@ -11,9 +11,8 @@ import SBCore
 protocol MusicRemoteDataSourceProtocol: Sendable {
     func searchSongs(
         term: String,
-        offset: Int,
         limit: Int
-    ) async throws -> [SongDTO]
+    ) async throws -> SongSearchResponseDTO
 
     func fetchAlbumSongs(
         albumID: Int
@@ -33,12 +32,10 @@ struct ITunesMusicRemoteDataSource: MusicRemoteDataSourceProtocol {
 
     func searchSongs(
         term: String,
-        offset: Int,
         limit: Int
-    ) async throws -> [SongDTO] {
+    ) async throws -> SongSearchResponseDTO {
         let request: SearchSongsRequest = .search(
             term: term,
-            offset: offset,
             limit: limit
         )
 
@@ -47,7 +44,7 @@ struct ITunesMusicRemoteDataSource: MusicRemoteDataSourceProtocol {
             responseType: SongSearchResponseDTO.self
         )
 
-        return response.results
+        return response
     }
 
     func fetchAlbumSongs(
