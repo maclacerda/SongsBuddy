@@ -6,6 +6,8 @@
 //
 
 import Observation
+import SBAlbumFeature
+import SBData
 import SBDesignSystem
 import SBSongDetailsFeature
 import SwiftUI
@@ -14,7 +16,10 @@ public struct SongsView: View {
     // MARK: - Properties
     @State private var viewModel: SongsViewModel
     @State private var scrollOffset: CGFloat = .zero
+    @State private var selectedSongForDetails: SongRowItem?
     @State private var selectedSong: SongRowItem?
+    @State private var isShowingMoreOptions: Bool = false
+    @State private var isShowingAlbumFromSheet: Bool = false
 
     private let expandedHeaderHeight: CGFloat = 124
     private let collapsedHeaderHeight: CGFloat = 104
@@ -42,31 +47,7 @@ public struct SongsView: View {
                 SBColors.screenBackground
                     .ignoresSafeArea()
 
-                ScrollView(showsIndicators: false) {
-                    VStack(
-                        alignment: .leading,
-                        spacing: .zero
-                    ) {
-                        Color.clear
-                            .frame(height: self.currentHeaderHeight + self.contentTopSpacing)
-
-                        contentView
-                    }
-                    .padding(.horizontal, SBSpacingToken.spacing20.value)
-                    .padding(.bottom, SBSpacingToken.spacing24.value)
-                    .background(
-                        ScrollOffsetObserver { offset in
-                            let normalizedOffset = max(offset, 0)
-
-                            guard abs(normalizedOffset - self.scrollOffset) > 0.5 else {
-                                return
-                            }
-
-                            self.scrollOffset = normalizedOffset
-                        }
-                            .frame(width: 0, height: 0)
-                    )
-                }
+                contentView
 
                 SBSongsHeaderView(
                     isCollapsed: self.isCollapsed,
@@ -77,7 +58,21 @@ public struct SongsView: View {
                 .background(SBColors.screenBackground)
                 .animation(.easeInOut(duration: 0.18), value: self.isCollapsed)
             }
-            .navigationDestination(item: $selectedSong) { item in
+            .navigationDestination(isPresented: $isShowingAlbumFromSheet) {
+                if let selectedSong,
+                   let albumID = selectedSong.albumID {
+                    AlbumDetailsView(
+                        viewModel: AlbumDetailsViewModel(
+                            albumID: albumID,
+                            albumTitle: selectedSong.albumName ?? "",
+                            artistName: selectedSong.artistName,
+                            artworkURL: selectedSong.artworkURL,
+                            repository: MusicRepositoryFactory.makeDefault()
+                        )
+                    )
+                }
+            }
+            .navigationDestination(item: $selectedSongForDetails) { item in
                 let item = SongDetailsItem(
                     title: item.title,
                     artistName: item.artistName,
@@ -95,6 +90,30 @@ public struct SongsView: View {
                     viewModel: viewModel
                 )
             }
+            .overlay {
+                if isShowingMoreOptions, let selectedSong {
+                    ZStack(alignment: .bottom) {
+                        Color.black.opacity(0.2)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                isShowingMoreOptions = false
+                            }
+
+                        MoreOptionsSheetView(
+                            title: selectedSong.title ?? "",
+                            artistName: selectedSong.artistName,
+                            onViewAlbum: {
+                                isShowingMoreOptions = false
+                                isShowingAlbumFromSheet = true
+                            }
+                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 192)
+                        .transition(.move(edge: .bottom))
+                    }
+                    .ignoresSafeArea()
+                }
+            }
         }
         .preferredColorScheme(.dark)
         .task {
@@ -103,6 +122,10 @@ public struct SongsView: View {
         .onChange(of: viewModel.searchText) { _, _ in
             viewModel.scheduleSearch()
         }
+        .animation(
+            .easeInOut(duration: 0.2),
+            value: isShowingMoreOptions
+        )
     }
 }
 
@@ -112,29 +135,52 @@ private extension SongsView {
         switch self.viewModel.state {
         case .idle, .loading:
             AnyView(
-                ProgressView()
-                    .tint(SBColors.primaryIcon)
-                    .frame(maxWidth: .infinity)
+                VStack {
+                    Spacer()
+
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(SBColors.primaryIcon)
+
+                    Spacer()
+                }
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity
+                )
             )
 
         case .content(let items):
             AnyView(
-                LazyVStack(spacing: .zero) {
-                    ForEach(items) { item in
-                        Button {
-                            self.selectedSong = item
-                        } label: {
-                            SongRowView(item: item)
-                        }
-                        .buttonStyle(.plain)
-                        .onAppear {
-                            Task {
-                                await viewModel.loadNextPageIfneeded(
-                                    currentItemID: item.id
-                                )
-                            }
-                        }
+                ScrollView(
+                    showsIndicators: false
+                ) {
+                    VStack(
+                        alignment: .leading,
+                        spacing: .zero
+                    ) {
+                        Color.clear
+                            .frame(height: self.currentHeaderHeight + self.contentTopSpacing)
+
+                        listView(with: items)
                     }
+                    .padding(.horizontal, SBSpacingToken.spacing20.value)
+                    .padding(.bottom, SBSpacingToken.spacing24.value)
+                    .background(
+                        ScrollOffsetObserver { offset in
+                            let normalizedOffset = max(offset, .zero)
+
+                            guard abs(normalizedOffset - self.scrollOffset) > 0.5 else {
+                                return
+                            }
+
+                            self.scrollOffset = normalizedOffset
+                        }
+                        .frame(
+                            width: .zero,
+                            height: .zero
+                        )
+                    )
                 }
             )
 
@@ -148,6 +194,35 @@ private extension SongsView {
                 errorStateView(message: message)
             )
         }
+    }
+
+    @ViewBuilder
+    func listView(
+        with items: [SongRowItem]
+    ) -> some View {
+        AnyView(
+            LazyVStack(spacing: .zero) {
+                ForEach(items) { item in
+                    SongRowView(
+                        item: item,
+                        onTap: {
+                            self.selectedSongForDetails = item
+                        },
+                        onMoreTapped: {
+                            selectedSong = item
+                            isShowingMoreOptions = true
+                        }
+                    )
+                    .onAppear {
+                        Task {
+                            await viewModel.loadNextPageIfneeded(
+                                currentItemID: item.id
+                            )
+                        }
+                    }
+                }
+            }
+        )
     }
 
     @ViewBuilder

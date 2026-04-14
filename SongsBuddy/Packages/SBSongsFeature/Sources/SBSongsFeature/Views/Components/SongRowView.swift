@@ -12,43 +12,66 @@ import SwiftUI
 public struct SongRowView: View {
     // MARK: - Properties
     private let item: SongRowItem
+    private let onTap: () -> Void
+    private let onMoreTapped: () -> Void
 
     // MARK: - Initializer
     public init(
-        item: SongRowItem
+        item: SongRowItem,
+        onTap: @escaping () -> Void,
+        onMoreTapped: @escaping () -> Void
     ) {
         self.item = item
+        self.onTap = onTap
+        self.onMoreTapped = onMoreTapped
     }
 
     // MARK: - Body
     public var body: some View {
-        HStack(spacing: SBSpacingToken.spacing16.value) {
-            artworkView
-
-            VStack(
-                alignment: .leading,
-                spacing: SBSpacingToken.spacing4.value
+        Button {
+            onTap()
+        } label: {
+            HStack(
+                spacing: SBSpacingToken.spacing16.value
             ) {
-                Text(self.item.title)
-                    .font(.sb(.text16))
-                    .foregroundStyle(SBColors.primaryText)
-                    .lineLimit(1)
+                artworkView
 
-                Text(self.item.artistName)
-                    .font(.sb(.text12))
-                    .foregroundStyle(SBColors.tertiaryText)
-                    .lineLimit(1)
+                VStack(
+                    alignment: .leading,
+                    spacing: SBSpacingToken.spacing4.value
+                ) {
+                    Text(self.item.title)
+                        .font(.sb(.text16))
+                        .foregroundStyle(SBColors.primaryText)
+                        .lineLimit(1)
+
+                    Text(self.item.artistName)
+                        .font(.sb(.text12))
+                        .foregroundStyle(SBColors.tertiaryText)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Button {
+                    onMoreTapped()
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundStyle(SBColors.tertiaryText)
+                        .frame(
+                            width: 36,
+                            height: 36
+                        )
+                }
             }
-
-            Spacer()
-
-            Image(systemName: "ellipsis")
-                .foregroundStyle(SBColors.tertiaryText)
-                .frame(width: 36, height: 36)
+            .frame(
+                maxWidth: .infinity,
+                alignment: .leading
+            )
+            .frame(height: 68)
+            .contentShape(Rectangle())
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 68)
-        .contentShape(Rectangle())
+        .buttonStyle(.plain)
     }
 }
 

@@ -16,6 +16,7 @@ public final class SongsViewModel {
     // MARK: - Properties
     public var searchText: String
     public private(set) var state: SongsScreenState
+    public private(set) var isLoadingNextPage: Bool = false
 
     private let repository: any MusicRepositoryProtocol
     private var searchTask: Task<Void, Never>?
@@ -29,7 +30,6 @@ public final class SongsViewModel {
     private var visibleItems: [SongRowItem] = []
     private var currentPage: Int = 0
     private var hasMoreResults: Bool = true
-    private var isLoadingNextPage: Bool = false
     private var lastPaginationTriggerItemID: Int?
     private var currentSearchSessionID: UUID = UUID()
 

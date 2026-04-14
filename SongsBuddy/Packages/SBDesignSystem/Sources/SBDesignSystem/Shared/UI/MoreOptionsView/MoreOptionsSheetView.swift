@@ -5,16 +5,26 @@
 //  Created by Marcos Ferreira on 4/13/26.
 //
 
-import SBDesignSystem
 import SwiftUI
 
-struct MoreOptionsSheetView: View {
+public struct MoreOptionsSheetView: View {
     // MARK: - Properties
-    let title: String
-    let artistName: String
-    let onViewAlbum: () -> Void
+    private let title: String
+    private let artistName: String
+    private let onViewAlbum: () -> Void
 
-    var body: some View {
+    // MARK: - Initializer
+    public init(
+        title: String,
+        artistName: String,
+        onViewAlbum: @escaping () -> Void
+    ) {
+        self.title = title
+        self.artistName = artistName
+        self.onViewAlbum = onViewAlbum
+    }
+
+    public var body: some View {
         VStack(
             spacing: .zero
         ) {
