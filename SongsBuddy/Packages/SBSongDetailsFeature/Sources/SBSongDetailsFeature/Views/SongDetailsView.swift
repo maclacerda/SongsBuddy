@@ -78,8 +78,8 @@ public struct SongDetailsView: View {
                 VStack(
                     spacing: SBSpacingToken.spacing24.value
                 ) {
-                    progressPlaceholderView
-                    controlsPlaceholderView
+                    progressView
+                    controlsView
                 }
                 .padding(.horizontal, SBSpacingToken.spacing24.value)
                 .padding(.bottom, 33)
@@ -142,6 +142,12 @@ public struct SongDetailsView: View {
                     viewModel: viewModel
                 )
             }
+        }
+        .task {
+            viewModel.preparePlayer()
+        }
+        .onDisappear {
+            viewModel.stopPlayer()
         }
     }
 }
@@ -206,54 +212,69 @@ private extension SongDetailsView {
             .frame(width: 24, height: 24)
     }
 
-    var progressPlaceholderView: some View {
-        VStack(spacing: SBSpacingToken.spacing8.value) {
-            Capsule()
-                .fill(SBColors.progressTrack)
-                .frame(height: 8)
-                .overlay(alignment: .leading) {
-                    Capsule()
-                        .fill(SBColors.progressFill)
-                        .frame(width: 120, height: 8)
-                }
+    var progressView: some View {
+        VStack(
+            spacing: SBSpacingToken.spacing8.value
+        ) {
+            Slider(
+                value: Binding(
+                    get: {
+                        return viewModel.progressValue
+                    },
+                    set: { newValue in
+                        viewModel.seek(
+                            to: newValue
+                        )
+                    }
+                ),
+                in: 0...1
+            )
+            .tint(SBColors.progressFill)
 
             HStack {
-                Text("0:00")
+                Text(viewModel.formattedCurrentTime)
                     .font(.sb(.text12))
                     .foregroundStyle(SBColors.tertiaryText)
 
                 Spacer()
 
-                Text("0:30")
+                Text(viewModel.formattedDuration)
                     .font(.sb(.text12))
                     .foregroundStyle(SBColors.tertiaryText)
             }
         }
     }
 
-    var controlsPlaceholderView: some View {
+    var controlsView: some View {
         HStack {
             Image(systemName: "backward.fill")
                 .font(.system(size: 28, weight: .regular))
                 .foregroundStyle(SBColors.primaryIcon)
+                .frame(width: 36, height: 36)
 
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(SBColors.searchBackground)
-                    .frame(width: 72, height: 72)
+            Button {
+                viewModel.togglePlayback()
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(SBColors.searchBackground)
+                        .frame(width: 72, height: 72)
 
-                Image(systemName: "play.fill")
-                    .font(.system(size: 28, weight: .regular))
-                    .foregroundStyle(SBColors.primaryIcon)
+                    Image(systemName: viewModel.playPauseSystemImage)
+                        .font(.system(size: 28, weight: .regular))
+                        .foregroundStyle(SBColors.primaryIcon)
+                }
             }
+            .buttonStyle(.plain)
 
             Spacer()
 
             Image(systemName: "forward.fill")
                 .font(.system(size: 28, weight: .regular))
                 .foregroundStyle(SBColors.primaryIcon)
+                .frame(width: 36, height: 36)
         }
         .padding(.horizontal, SBSpacingToken.spacing24.value)
     }
