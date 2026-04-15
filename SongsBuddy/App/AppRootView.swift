@@ -24,10 +24,14 @@ struct AppRootView: View {
                     progress: splashProgress
                 )
             } else {
+                let viewModel = SongsViewModel(
+                    repository: MusicRepositoryFactory.makeDefault(),
+                    recentlyPlayedRepository: appDependencies.recentlyPlayedRepository
+                )
+
                 SongsView(
-                    viewModel: SongsViewModel(
-                        repository: MusicRepositoryFactory.makeDefault()
-                    )
+                    viewModel: viewModel,
+                    recentlyPlayedRepository: appDependencies.recentlyPlayedRepository
                 )
             }
         }

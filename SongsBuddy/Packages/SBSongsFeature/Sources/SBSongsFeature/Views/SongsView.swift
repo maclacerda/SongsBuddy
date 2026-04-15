@@ -9,6 +9,7 @@ import Observation
 import SBAlbumFeature
 import SBData
 import SBDesignSystem
+import SBDomain
 import SBSongDetailsFeature
 import SwiftUI
 
@@ -20,6 +21,9 @@ public struct SongsView: View {
     @State private var selectedSong: SongRowItem?
     @State private var isShowingMoreOptions: Bool = false
     @State private var isShowingAlbumFromSheet: Bool = false
+    @State private var isShowingRemoveRecentConfirmation: Bool = false
+
+    private let recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
 
     private let expandedHeaderHeight: CGFloat = 124
     private let collapsedHeaderHeight: CGFloat = 104
@@ -36,9 +40,11 @@ public struct SongsView: View {
 
     // MARK: - Initializer
     public init(
-        viewModel: SongsViewModel
+        viewModel: SongsViewModel,
+        recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
     ) {
         self._viewModel = State(initialValue: viewModel)
+        self.recentlyPlayedRepository = recentlyPlayedRepository
     }
 
     public var body: some View {
@@ -105,10 +111,18 @@ public struct SongsView: View {
                             onViewAlbum: {
                                 isShowingMoreOptions = false
                                 isShowingAlbumFromSheet = true
+                            },
+                            showsRemoveFromRecents: true,
+                            onRemoveFromRecents: {
+                                isShowingMoreOptions = false
+
+                                DispatchQueue.main.async {
+                                    isShowingRemoveRecentConfirmation = true
+                                }
                             }
                         )
                         .frame(maxWidth: .infinity)
-                        .frame(height: 192)
+                        .frame(height: 228)
                         .transition(.move(edge: .bottom))
                     }
                     .ignoresSafeArea()
@@ -117,7 +131,13 @@ public struct SongsView: View {
         }
         .preferredColorScheme(.dark)
         .task {
+            await viewModel.refreshRecentlyPlayed()
             await viewModel.loadInitialSongs()
+        }
+        .onAppear {
+            Task {
+                await viewModel.refreshRecentlyPlayed()
+            }
         }
         .onChange(of: viewModel.searchText) { _, _ in
             viewModel.scheduleSearch()
@@ -126,6 +146,26 @@ public struct SongsView: View {
             .easeInOut(duration: 0.2),
             value: isShowingMoreOptions
         )
+        .alert(
+            "Remove from Recently Played?",
+            isPresented: self.$isShowingRemoveRecentConfirmation
+        ) {
+            Button("Cancel", role: .cancel) {}
+
+            Button("Remove", role: .destructive) {
+                guard let selectedSong else {
+                    return
+                }
+
+                Task {
+                    await self.viewModel.removeRecentlyPlayed(
+                        songID: selectedSong.id
+                    )
+                }
+            }
+        } message: {
+            Text("This song will be removed from your recently played list.")
+        }
     }
 }
 
@@ -196,17 +236,59 @@ private extension SongsView {
         }
     }
 
+    var recentlyPlayedSection: some View {
+        VStack(
+            alignment: .leading,
+            spacing: .zero
+        ) {
+            Text("Recently Played")
+                .font(.sb(.display20))
+                .foregroundStyle(SBColors.primaryText)
+                .padding(.bottom, SBSpacingToken.spacing12.value)
+
+            LazyVStack(spacing: .zero) {
+                ForEach(self.viewModel.recentlyPlayedItems) { item in
+                    SongRowView(
+                        item: item,
+                        onTap: {
+                            Task {
+                                await viewModel.markAsRecentlyPlayed(item: item)
+                                selectedSongForDetails = item
+                            }
+                        },
+                        onMoreTapped: {
+                            selectedSong = item
+                            isShowingMoreOptions = true
+                        }
+                    )
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     func listView(
         with items: [SongRowItem]
     ) -> some View {
         AnyView(
-            LazyVStack(spacing: .zero) {
+            LazyVStack(
+                alignment: .leading,
+                spacing: .zero
+            ) {
+                if viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                   !viewModel.recentlyPlayedItems.isEmpty {
+                    recentlyPlayedSection
+                        .padding(.bottom, SBSpacingToken.spacing24.value)
+                }
+
                 ForEach(items) { item in
                     SongRowView(
                         item: item,
                         onTap: {
-                            self.selectedSongForDetails = item
+                            Task {
+                                await viewModel.markAsRecentlyPlayed(item: item)
+                                selectedSongForDetails = item
+                            }
                         },
                         onMoreTapped: {
                             selectedSong = item

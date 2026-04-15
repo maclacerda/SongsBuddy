@@ -85,7 +85,7 @@ public final class SongDetailsViewModel {
         }
     }
 
-    public func preparePlayer() {
+    public func preparePlayer() async {
         audioPlayerService.loadPreview(
             url: item.previewURL
         )
