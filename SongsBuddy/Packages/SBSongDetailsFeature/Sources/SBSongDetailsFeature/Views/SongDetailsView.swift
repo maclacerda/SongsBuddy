@@ -144,7 +144,7 @@ public struct SongDetailsView: View {
             }
         }
         .task {
-            viewModel.preparePlayer()
+            await viewModel.preparePlayer()
         }
         .onDisappear {
             viewModel.stopPlayer()

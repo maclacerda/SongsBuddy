@@ -12,16 +12,22 @@ public struct MoreOptionsSheetView: View {
     private let title: String
     private let artistName: String
     private let onViewAlbum: () -> Void
+    private let showsRemoveFromRecents: Bool
+    private let onRemoveFromRecents: (() -> Void)?
 
     // MARK: - Initializer
     public init(
         title: String,
         artistName: String,
-        onViewAlbum: @escaping () -> Void
+        onViewAlbum: @escaping () -> Void,
+        showsRemoveFromRecents: Bool = false,
+        onRemoveFromRecents: (() -> Void)? = nil
     ) {
         self.title = title
         self.artistName = artistName
         self.onViewAlbum = onViewAlbum
+        self.showsRemoveFromRecents = showsRemoveFromRecents
+        self.onRemoveFromRecents = onRemoveFromRecents
     }
 
     public var body: some View {
@@ -70,6 +76,32 @@ public struct MoreOptionsSheetView: View {
             }
             .buttonStyle(.plain)
             .padding(.top, SBSpacingToken.spacing24.value)
+
+            if showsRemoveFromRecents {
+                Button {
+                    onRemoveFromRecents?()
+                } label: {
+                    HStack(spacing: .zero) {
+                        Image(systemName: "clock.badge.xmark")
+                            .font(.system(size: 24, weight: .regular))
+                            .foregroundStyle(SBColors.primaryIcon)
+                            .frame(
+                                width: 24,
+                                height: 24
+                            )
+
+                        Text("Remove from Recents")
+                            .font(.sb(.text16))
+                            .foregroundStyle(SBColors.primaryText)
+                            .padding(.leading, SBSpacingToken.spacing16.value)
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, SBSpacingToken.spacing24.value)
+                    .frame(height: 56)
+                }
+                .buttonStyle(.plain)
+            }
 
             Spacer(minLength: .zero)
         }

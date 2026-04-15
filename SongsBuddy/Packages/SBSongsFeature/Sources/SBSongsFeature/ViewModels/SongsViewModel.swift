@@ -16,14 +16,17 @@ public final class SongsViewModel {
     // MARK: - Properties
     public var searchText: String
     public private(set) var state: SongsScreenState
+    public private(set) var recentlyPlayedItems: [SongRowItem]
     public private(set) var isLoadingNextPage: Bool = false
 
     private let repository: any MusicRepositoryProtocol
+    private let recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
     private var searchTask: Task<Void, Never>?
 
     private let initialSearchTerm: String = "rock"
     private let remoteFetchLimit: Int = 200
     private let pageSize: Int = 20
+    private let recentlyPlayedLimit: Int = 10
 
     private var currentTerm: String = ""
     private var allItems: [SongRowItem] = []
@@ -35,11 +38,16 @@ public final class SongsViewModel {
 
     // MARK: - Initializer
     public init(
-        repository: any MusicRepositoryProtocol
+        repository: any MusicRepositoryProtocol,
+        recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
     ) {
         self.repository = repository
+        self.recentlyPlayedRepository = recentlyPlayedRepository
         self.searchText = ""
         self.state = .idle
+
+        recentlyPlayedItems = []
+        isLoadingNextPage = false
     }
 
     // MARK: - Methods
@@ -51,6 +59,28 @@ public final class SongsViewModel {
         await startNewSearch(
             term: initialSearchTerm
         )
+    }
+
+    public func refreshRecentlyPlayed() async {
+        do {
+            let songs = try await recentlyPlayedRepository.fetchRecentlyPlayed(
+                limit: recentlyPlayedLimit
+            )
+
+            recentlyPlayedItems = songs.map {
+                return SongRowItem(
+                    id: $0.id,
+                    title: $0.title,
+                    artistName: $0.artistName,
+                    artworkURL: $0.artworkURL,
+                    previewURL: $0.previewURL,
+                    albumName: $0.albumName,
+                    albumID: $0.albumID
+                )
+            }
+        } catch {
+            recentlyPlayedItems = []
+        }
     }
 
     public func scheduleSearch() {
@@ -261,5 +291,44 @@ public final class SongsViewModel {
         }
 
         return deduplicatedItems
+    }
+
+    public func markAsRecentlyPlayed(
+        item: SongRowItem
+    ) async {
+        let song = RecentlyPlayedSong(
+            id: item.id,
+            title: item.title,
+            artistName: item.artistName,
+            artworkURL: item.artworkURL,
+            previewURL: item.previewURL,
+            albumName: item.albumName,
+            albumID: item.albumID,
+            playedAt: Date()
+        )
+
+        try? await recentlyPlayedRepository.save(
+            song: song
+        )
+
+        await refreshRecentlyPlayed()
+    }
+
+    public func removeRecentlyPlayed(
+        songID: Int
+    ) async {
+        try? await recentlyPlayedRepository.delete(
+            songID: songID
+        )
+
+        await refreshRecentlyPlayed()
+    }
+
+    public func isRecentlyPlayed(
+        songID: Int
+    ) -> Bool {
+        return recentlyPlayedItems.contains {
+            return $0.id == songID
+        }
     }
 }
