@@ -8,86 +8,19 @@
 import AVFoundation
 import Foundation
 
-@MainActor
-final class AudioPlayerService: NSObject {
+public final class AudioPlayerService: NSObject, @unchecked Sendable {
     // MARK: - Properties
-    var onProgressUpdate: ((Double, Double) -> Void)?
-    var onStateChange: ((AudioPlayerState) -> Void)?
+    public var onProgressUpdate: ((Double, Double) -> Void)?
+    public var onStateChange: ((AudioPlayerState) -> Void)?
 
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var playbackEndedObserver: NSObjectProtocol?
 
+    // MARK: - Initializer
+    public override init() {}
+
     // MARK: - Methods
-    func loadPreview(
-        url: URL?
-    ) {
-        guard let url else {
-            onStateChange?(.failed)
-            return
-        }
-
-        stop()
-
-        onStateChange?(.loading)
-
-        let playerItem = AVPlayerItem(
-            url: url
-        )
-
-        let player = AVPlayer(
-            playerItem: playerItem
-        )
-
-        player.automaticallyWaitsToMinimizeStalling = true
-
-        self.player = player
-
-        addPeriodicTimeObserver()
-        observePlaybackEnded(for: playerItem)
-
-        play()
-    }
-
-    func play() {
-        player?.play()
-        onStateChange?(.playing)
-    }
-
-    func pause() {
-        player?.pause()
-        onStateChange?(.paused)
-    }
-
-    func stop() {
-        if let timeObserverToken {
-            player?.removeTimeObserver(timeObserverToken)
-            self.timeObserverToken = nil
-        }
-
-        if let playbackEndedObserver {
-            NotificationCenter.default.removeObserver(playbackEndedObserver)
-            self.playbackEndedObserver = nil
-        }
-
-        player?.pause()
-        player?.replaceCurrentItem(with: nil)
-        player = nil
-    }
-
-    func seek(
-        to seconds: Double
-    ) {
-        let targetTime = CMTime(
-            seconds: seconds,
-            preferredTimescale: 600
-        )
-
-        player?.seek(
-            to: targetTime
-        )
-    }
-
     private func addPeriodicTimeObserver() {
         let interval = CMTime(
             seconds: 0.25,
@@ -142,5 +75,77 @@ final class AudioPlayerService: NSObject {
 
             self?.onStateChange?(.paused)
         }
+    }
+}
+
+// MARK: - AudioPlayerServiceProtocol
+extension AudioPlayerService: AudioPlayerServiceProtocol {
+    public func loadPreview(
+        url: URL?
+    ) {
+        guard let url else {
+            onStateChange?(.failed)
+            return
+        }
+
+        stop()
+
+        onStateChange?(.loading)
+
+        let playerItem = AVPlayerItem(
+            url: url
+        )
+
+        let player = AVPlayer(
+            playerItem: playerItem
+        )
+
+        player.automaticallyWaitsToMinimizeStalling = true
+
+        self.player = player
+
+        addPeriodicTimeObserver()
+        observePlaybackEnded(for: playerItem)
+
+        play()
+    }
+
+    public func play() {
+        player?.play()
+        onStateChange?(.playing)
+    }
+
+    public func pause() {
+        player?.pause()
+        onStateChange?(.paused)
+    }
+
+    public func stop() {
+        if let timeObserverToken {
+            player?.removeTimeObserver(timeObserverToken)
+            self.timeObserverToken = nil
+        }
+
+        if let playbackEndedObserver {
+            NotificationCenter.default.removeObserver(playbackEndedObserver)
+            self.playbackEndedObserver = nil
+        }
+
+        player?.pause()
+        player?.replaceCurrentItem(with: nil)
+        player = nil
+    }
+
+    public func seek(
+        to seconds: Double
+    ) {
+        let targetTime = CMTime(
+            seconds: seconds,
+            preferredTimescale: 600
+        )
+
+        player?.seek(
+            to: targetTime
+        )
     }
 }

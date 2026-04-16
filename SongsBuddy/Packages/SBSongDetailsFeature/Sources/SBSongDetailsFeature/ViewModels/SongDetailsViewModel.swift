@@ -9,8 +9,8 @@ import Foundation
 import Observation
 
 /// Manages the Player screen presentation data.
-@Observable
 @MainActor
+@Observable
 public final class SongDetailsViewModel {
     // MARK: - Properties
     public let item: SongDetailsItem
@@ -18,7 +18,7 @@ public final class SongDetailsViewModel {
     public private(set) var currentTime: Double
     public private(set) var duration: Double
 
-    private let audioPlayerService: AudioPlayerService
+    private let audioPlayerService: AudioPlayerServiceProtocol
 
     public var progressValue: Double {
         guard duration > .zero else {
@@ -62,15 +62,16 @@ public final class SongDetailsViewModel {
 
     // MARK: - Initializer
     public init(
-        item: SongDetailsItem
+        item: SongDetailsItem,
+        audioPlayerService: AudioPlayerServiceProtocol = AudioPlayerService()
     ) {
         self.item = item
+        self.audioPlayerService = audioPlayerService
 
         playerState = .idle
         currentTime = .zero
         duration = .zero
 
-        audioPlayerService = .init()
         setupAudioPlayerService()
     }
 
