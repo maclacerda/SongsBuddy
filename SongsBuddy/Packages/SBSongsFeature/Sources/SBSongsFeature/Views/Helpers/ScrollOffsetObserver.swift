@@ -71,9 +71,8 @@ final class ObserverView: UIView {
             \.contentOffset,
             options: [.initial, .new]
         ) { [weak self] scrollView, _ in
-            let offset = scrollView.contentOffset.y
-
             DispatchQueue.main.async {
+                let offset = scrollView.contentOffset.y
                 self?.onOffsetChange?(offset)
             }
         }

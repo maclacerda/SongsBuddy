@@ -106,7 +106,7 @@ public struct SongsView: View {
                             }
 
                         MoreOptionsSheetView(
-                            title: selectedSong.title ?? "",
+                            title: selectedSong.title,
                             artistName: selectedSong.artistName,
                             onViewAlbum: {
                                 isShowingMoreOptions = false
