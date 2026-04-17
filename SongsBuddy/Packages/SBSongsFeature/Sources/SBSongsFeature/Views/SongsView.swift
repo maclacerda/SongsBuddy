@@ -28,20 +28,25 @@ public struct SongsView: View {
     private let recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
 
     private let expandedHeaderHeight: CGFloat = 124
-    private let collapsedHeaderHeight: CGFloat = 104
+    private let collapsedHeaderHeight: CGFloat = 50
     private let contentTopSpacing: CGFloat = 16
     private let collapseThreshold: CGFloat = 40
 
-    private var isCollapsed: Bool {
+    private var collapseProgress: CGFloat {
         guard !isSearchManuallyExpanded else {
-            return false
+            return .zero
         }
 
-        return scrollOffset > collapseThreshold
+        let progress = min(
+            max(scrollOffset / collapseThreshold, .zero),
+            1
+        )
+
+        return progress
     }
 
     private var currentHeaderHeight: CGFloat {
-        return isCollapsed ? collapsedHeaderHeight : expandedHeaderHeight
+        return collapseProgress > 0.5 ? (collapsedHeaderHeight + contentTopSpacing) : expandedHeaderHeight
     }
 
     // MARK: - Initializer
@@ -62,7 +67,7 @@ public struct SongsView: View {
                 contentView
 
                 SBSongsHeaderView(
-                    isCollapsed: isCollapsed,
+                    collapseProgress: collapseProgress,
                     onCollapsedSearchTapped: {
                         isSearchManuallyExpanded = true
 
@@ -77,11 +82,13 @@ public struct SongsView: View {
                     height: currentHeaderHeight,
                     alignment: .top
                 )
-                .padding(.horizontal, SBSpacingToken.spacing20.value)
-                .background(SBColors.screenBackground)
                 .animation(
-                    .easeInOut(duration: 0.18),
-                    value: isCollapsed
+                    .interactiveSpring(
+                        response: 0.28,
+                        dampingFraction: 0.88,
+                        blendDuration: 0.12
+                    ),
+                    value: collapseProgress
                 )
             }
             .navigationDestination(isPresented: $isShowingAlbumFromSheet) {
@@ -149,7 +156,6 @@ public struct SongsView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .task {
             await viewModel.refreshRecentlyPlayed()
             await viewModel.loadInitialSongs()
