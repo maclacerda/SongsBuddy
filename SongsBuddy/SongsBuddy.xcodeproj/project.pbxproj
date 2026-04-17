@@ -19,15 +19,31 @@
 		0F709A242F88858B0064AF8D /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0F709A232F88858B0064AF8D /* SBDesignSystem */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0FB3D74D2F91C445005ACA22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0F78CD632F886C64009D1498 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0F78CD6A2F886C64009D1498;
+			remoteInfo = SongsBuddy;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0F709A9F2F8EC9AC0064AF8D /* SongsBuddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "SongsBuddy-Info.plist"; sourceTree = "<group>"; };
 		0F78CD6B2F886C64009D1498 /* SongsBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SongsBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0FB3D7492F91C445005ACA22 /* SongsBuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SongsBuddyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0F78CD6D2F886C64009D1498 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = App;
+			sourceTree = "<group>";
+		};
+		0FB3D74A2F91C445005ACA22 /* SongsBuddyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SongsBuddyTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -50,6 +66,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0FB3D7462F91C445005ACA22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -58,6 +81,7 @@
 			children = (
 				0F709A9F2F8EC9AC0064AF8D /* SongsBuddy-Info.plist */,
 				0F78CD6D2F886C64009D1498 /* App */,
+				0FB3D74A2F91C445005ACA22 /* SongsBuddyTests */,
 				0F78CD6C2F886C64009D1498 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				0F78CD6B2F886C64009D1498 /* SongsBuddy.app */,
+				0FB3D7492F91C445005ACA22 /* SongsBuddyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,6 +130,29 @@
 			productReference = 0F78CD6B2F886C64009D1498 /* SongsBuddy.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0FB3D7482F91C445005ACA22 /* SongsBuddyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0FB3D7512F91C445005ACA22 /* Build configuration list for PBXNativeTarget "SongsBuddyTests" */;
+			buildPhases = (
+				0FB3D7452F91C445005ACA22 /* Sources */,
+				0FB3D7462F91C445005ACA22 /* Frameworks */,
+				0FB3D7472F91C445005ACA22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0FB3D74E2F91C445005ACA22 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0FB3D74A2F91C445005ACA22 /* SongsBuddyTests */,
+			);
+			name = SongsBuddyTests;
+			packageProductDependencies = (
+			);
+			productName = SongsBuddyTests;
+			productReference = 0FB3D7492F91C445005ACA22 /* SongsBuddyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -117,6 +165,10 @@
 				TargetAttributes = {
 					0F78CD6A2F886C64009D1498 = {
 						CreatedOnToolsVersion = 26.2;
+					};
+					0FB3D7482F91C445005ACA22 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 0F78CD6A2F886C64009D1498;
 					};
 				};
 			};
@@ -145,12 +197,20 @@
 			projectRoot = "";
 			targets = (
 				0F78CD6A2F886C64009D1498 /* SongsBuddy */,
+				0FB3D7482F91C445005ACA22 /* SongsBuddyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0F78CD692F886C64009D1498 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0FB3D7472F91C445005ACA22 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -167,7 +227,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0FB3D7452F91C445005ACA22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0FB3D74E2F91C445005ACA22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0F78CD6A2F886C64009D1498 /* SongsBuddy */;
+			targetProxy = 0FB3D74D2F91C445005ACA22 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0F78CD8C2F886C65009D1498 /* Debug */ = {
@@ -369,6 +444,46 @@
 			};
 			name = Release;
 		};
+		0FB3D74F2F91C445005ACA22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moises.challenge.SongsBuddyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SongsBuddy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SongsBuddy";
+			};
+			name = Debug;
+		};
+		0FB3D7502F91C445005ACA22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moises.challenge.SongsBuddyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SongsBuddy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SongsBuddy";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -386,6 +501,15 @@
 			buildConfigurations = (
 				0F78CD8F2F886C65009D1498 /* Debug */,
 				0F78CD902F886C65009D1498 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0FB3D7512F91C445005ACA22 /* Build configuration list for PBXNativeTarget "SongsBuddyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0FB3D74F2F91C445005ACA22 /* Debug */,
+				0FB3D7502F91C445005ACA22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

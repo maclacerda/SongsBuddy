@@ -80,4 +80,62 @@ struct SongsViewSnapshotTests {
             named: "dark_content"
         )
     }
+
+    @Test("renders empty state")
+    func rendersEmptyState() async {
+        let repository = SnapshotMusicRepository(
+            paginatedSongs: PaginatedSongs(
+                resultCount: 0,
+                items: []
+            )
+        )
+
+        let recentlyPlayedRepository = SnapshotRecentlyPlayedRepository()
+
+        let viewModel = SongsViewModel(
+            repository: repository,
+            recentlyPlayedRepository: recentlyPlayedRepository
+        )
+
+        viewModel.searchText = "No Results"
+
+        await viewModel.retry()
+
+        let view = SongsView(
+            viewModel: viewModel,
+            recentlyPlayedRepository: recentlyPlayedRepository
+        )
+
+        SnapshotTestHelper.assertSnapshot(
+            of: view,
+            style: .dark,
+            named: "dark_empty"
+        )
+    }
+
+    @Test("renders error state")
+    func rendersErrorState() async {
+        let repository = FailingSnapshotMusicRepository()
+        let recentlyPlayedRepository = SnapshotRecentlyPlayedRepository()
+
+        let viewModel = SongsViewModel(
+            repository: repository,
+            recentlyPlayedRepository: recentlyPlayedRepository
+        )
+
+        viewModel.searchText = "Dream Theater"
+
+        await viewModel.retry()
+
+        let view = SongsView(
+            viewModel: viewModel,
+            recentlyPlayedRepository: recentlyPlayedRepository
+        )
+
+        SnapshotTestHelper.assertSnapshot(
+            of: view,
+            style: .dark,
+            named: "dark_error"
+        )
+    }
 }

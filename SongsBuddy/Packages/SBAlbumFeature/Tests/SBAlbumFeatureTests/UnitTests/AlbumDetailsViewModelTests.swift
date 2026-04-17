@@ -1,24 +1,24 @@
 //
-//  AlbumDetailsViewSnapshotTests.swift
+//  AlbumDetailsViewModelTests.swift
 //  SBAlbumFeature
 //
 //  Created by Marcos Ferreira on 4/16/26.
 //
 
+import Foundation
+import SBDomain
 import SBAlbumFeature
-import SwiftUI
-import SBTestUtils
 import Testing
 
-@Suite("AlbumDetailsView Snapshot Tests")
+@Suite("AlbumDetailsViewModel Tests")
 @MainActor
-struct AlbumDetailsViewSnapshotTests {
-    @Test("renders album details view")
-    func rendersAlbumDetailsView() async {
+struct AlbumDetailsViewModelTests {
+    @Test("load album maps songs into item")
+    func loadAlbumMapsSongsIntoItem() async throws {
         let repository = MusicRepositorySpy()
 
         repository.fetchAlbumSongsResult = [
-            .init(
+            Song(
                 id: 1,
                 trackName: "Pull Me Under",
                 artistName: "Dream Theater",
@@ -27,7 +27,7 @@ struct AlbumDetailsViewSnapshotTests {
                 albumName: "Images and Words",
                 albumID: 100
             ),
-            .init(
+            Song(
                 id: 2,
                 trackName: "Another Day",
                 artistName: "Dream Theater",
@@ -48,45 +48,15 @@ struct AlbumDetailsViewSnapshotTests {
 
         await viewModel.loadAlbum()
 
-        let view = NavigationStack {
-            AlbumDetailsView(
-                viewModel: viewModel
-            )
-        }
-
-        SnapshotTestHelper.assertSnapshot(
-            of: view,
-            style: .dark
-        )
+        #expect(viewModel.isLoading == false)
+        #expect(viewModel.errorMessage == nil)
+        #expect(viewModel.item?.title == "Images and Words")
+        #expect(viewModel.item?.songs.count == 2)
+        #expect(viewModel.item?.songs.first?.title == "Pull Me Under")
     }
 
-    @Test("renders loading view")
-    func rendersLoadingView() {
-        let repository = NeverCompletingMusicRepositorySpy()
-
-        let viewModel = AlbumDetailsViewModel(
-            albumID: 100,
-            albumTitle: "Images and Words",
-            artistName: "Dream Theater",
-            artworkURL: nil,
-            repository: repository
-        )
-
-        let view = NavigationStack {
-            AlbumDetailsView(
-                viewModel: viewModel
-            )
-        }
-
-        SnapshotTestHelper.assertSnapshot(
-            of: view,
-            style: .dark,
-            named: "dark_loading"
-        )
-    }
-
-    @Test("renders error view")
-    func rendersErrorView() async {
+    @Test("load album sets error on failure")
+    func loadAlbumSetsErrorOnFailure() async throws {
         let repository = FailingMusicRepositorySpy()
 
         let viewModel = AlbumDetailsViewModel(
@@ -99,16 +69,38 @@ struct AlbumDetailsViewSnapshotTests {
 
         await viewModel.loadAlbum()
 
-        let view = NavigationStack {
-            AlbumDetailsView(
-                viewModel: viewModel
-            )
-        }
+        #expect(viewModel.isLoading == false)
+        #expect(viewModel.item == nil)
+        #expect(viewModel.errorMessage == "Unable to load album.")
+    }
 
-        SnapshotTestHelper.assertSnapshot(
-            of: view,
-            style: .dark,
-            named: "dark_error"
+    @Test("load album does not fetch again when item already exists")
+    func loadAlbumDoesNotFetchAgainWhenItemAlreadyExists() async throws {
+        let repository = MusicRepositorySpy()
+
+        repository.fetchAlbumSongsResult = [
+            Song(
+                id: 1,
+                trackName: "Pull Me Under",
+                artistName: "Dream Theater",
+                artworkURL: nil,
+                previewURL: nil,
+                albumName: "Images and Words",
+                albumID: 100
+            )
+        ]
+
+        let viewModel = AlbumDetailsViewModel(
+            albumID: 100,
+            albumTitle: "Images and Words",
+            artistName: "Dream Theater",
+            artworkURL: nil,
+            repository: repository
         )
+
+        await viewModel.loadAlbum()
+        await viewModel.loadAlbum()
+
+        #expect(repository.fetchAlbumSongsCallCount == 1)
     }
 }
