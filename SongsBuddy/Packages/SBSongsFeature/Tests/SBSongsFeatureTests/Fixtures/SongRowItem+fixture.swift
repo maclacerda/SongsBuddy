@@ -1,28 +1,30 @@
 //
-//  SongsDetailsItem+fixture.swift
-//  SBSongDetailsFeature
+//  SongRowItem+fixture.swift
+//  SBSongsFeature
 //
 //  Created by Marcos Ferreira on 4/16/26.
 //
 
 import Foundation
-import SBSongDetailsFeature
+import SBSongsFeature
 
-extension SongDetailsItem {
+extension SongRowItem {
     static func fixture(
+        id: Int = 1,
         title: String = "Pull Me Under",
         artistName: String = "Dream Theater",
         artworkURL: URL? = nil,
-        albumName: String? = "Images and Words",
         previewURL: URL? = nil,
+        albumName: String? = "Images and Words",
         albumID: Int? = 100
-    ) -> SongDetailsItem {
-        return SongDetailsItem(
+    ) -> SongRowItem {
+        return SongRowItem(
+            id: id,
             title: title,
             artistName: artistName,
             artworkURL: artworkURL,
-            albumName: albumName,
             previewURL: previewURL,
+            albumName: albumName,
             albumID: albumID
         )
     }
