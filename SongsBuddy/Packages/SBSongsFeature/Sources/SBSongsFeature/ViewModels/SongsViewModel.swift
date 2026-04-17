@@ -36,6 +36,10 @@ public final class SongsViewModel {
     private var lastPaginationTriggerItemID: Int?
     private var currentSearchSessionID: UUID = UUID()
 
+    public var currentVisibleItems: [SongRowItem] {
+        return visibleItems
+    }
+
     // MARK: - Initializer
     public init(
         repository: any MusicRepositoryProtocol,

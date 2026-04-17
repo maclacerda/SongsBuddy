@@ -12,6 +12,7 @@ public final class AudioPlayerService: NSObject, @unchecked Sendable {
     // MARK: - Properties
     public var onProgressUpdate: ((Double, Double) -> Void)?
     public var onStateChange: ((AudioPlayerState) -> Void)?
+    public var onPlaybackEnded: (() -> Void)?
 
     private var player: AVPlayer?
     private var timeObserverToken: Any?
@@ -68,12 +69,10 @@ public final class AudioPlayerService: NSObject, @unchecked Sendable {
             self?.player?.pause()
             self?.player?.seek(to: .zero)
 
-            self?.onProgressUpdate?(
-                .zero,
-                safeDuration
-            )
-
+            self?.onProgressUpdate?(.zero, safeDuration)
             self?.onStateChange?(.paused)
+
+            self?.onPlaybackEnded?()
         }
     }
 }

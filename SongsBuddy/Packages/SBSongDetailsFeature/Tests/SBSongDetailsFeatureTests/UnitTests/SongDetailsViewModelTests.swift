@@ -15,10 +15,12 @@ struct SongDetailsViewModelTests {
     @Test("initial state is idle with zero progress")
     func initialStateIsIdleWithZeroProgress() {
         let spy = AudioPlayerServiceSpy()
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
 
         let viewModel = SongDetailsViewModel(
-            item: .fixture(),
-            audioPlayerService: spy
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         #expect(viewModel.playerState == .idle)
@@ -33,10 +35,12 @@ struct SongDetailsViewModelTests {
     @Test("prepare player loads preview")
     func preparePlayerLoadsPreview() async {
         let spy = AudioPlayerServiceSpy()
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
 
         let viewModel = SongDetailsViewModel(
-            item: .fixture(previewURL: URL(string: "https://example.com/preview.m4a")),
-            audioPlayerService: spy
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         await viewModel.preparePlayer()
@@ -47,10 +51,12 @@ struct SongDetailsViewModelTests {
     @Test("toggle playback pauses when state is playing")
     func togglePlaybackPausesWhenStateIsPlaying() throws {
         let spy = AudioPlayerServiceSpy()
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
 
         let viewModel = SongDetailsViewModel(
-            item: .fixture(),
-            audioPlayerService: spy
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         spy.onStateChange?(.playing)
@@ -64,10 +70,12 @@ struct SongDetailsViewModelTests {
     @Test("toggle playback plays when state is paused")
     func togglePlaybackPlaysWhenStateIsPaused() throws {
         let spy = AudioPlayerServiceSpy()
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
 
         let viewModel = SongDetailsViewModel(
-            item: .fixture(),
-            audioPlayerService: spy
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         spy.onStateChange?(.paused)
@@ -80,8 +88,12 @@ struct SongDetailsViewModelTests {
 
     @Test("formatted current and duration strings start at zero")
     func formattedStringsStartAtZero() {
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
+
         let viewModel = SongDetailsViewModel(
-            item: .fixture()
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         #expect(viewModel.formattedCurrentTime == "0:00")
@@ -91,10 +103,12 @@ struct SongDetailsViewModelTests {
     @Test("seek converts progress into target time")
     func seekConvertsProgressIntoTargetTime() {
         let spy = AudioPlayerServiceSpy()
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
 
         let viewModel = SongDetailsViewModel(
-            item: .fixture(),
-            audioPlayerService: spy
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         spy.onProgressUpdate?(15, 30)
@@ -110,10 +124,12 @@ struct SongDetailsViewModelTests {
     @Test("stop player forwards call to service")
     func stopPlayerForwardsCallToService() {
         let spy = AudioPlayerServiceSpy()
+        let recentlyPlayedRepository = RecentlyPlayedRepositorySpy()
 
         let viewModel = SongDetailsViewModel(
-            item: .fixture(),
-            audioPlayerService: spy
+            playbackContext: .init(),
+            audioPlayerService: spy,
+            recentlyPlayedRepository: recentlyPlayedRepository
         )
 
         viewModel.stopPlayer()

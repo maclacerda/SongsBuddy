@@ -7,18 +7,21 @@
 
 import Foundation
 import Observation
+import SBDomain
 
 /// Manages the Player screen presentation data.
 @MainActor
 @Observable
 public final class SongDetailsViewModel {
     // MARK: - Properties
-    public let item: SongDetailsItem
+    public private(set) var playbackContext: PlaybackContext
     public private(set) var playerState: AudioPlayerState
     public private(set) var currentTime: Double
     public private(set) var duration: Double
+    public var isRepeatEnabled: Bool
 
     private let audioPlayerService: AudioPlayerServiceProtocol
+    private let recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
 
     public var progressValue: Double {
         guard duration > .zero else {
@@ -31,11 +34,23 @@ public final class SongDetailsViewModel {
     public var playPauseSystemImage: String {
         switch self.playerState {
         case .playing:
-            return "pause.fill"
+            return "ic-pause"
 
         case .idle, .paused, .failed, .loading:
-            return "play.fill"
+            return "ic-play"
         }
+    }
+
+    public var repeatButtonOpacity: Double {
+        return self.isRepeatEnabled ? 1.0 : 0.45
+    }
+
+    public var backwardButtonOpacity: Double {
+        return self.canGoBackward ? 1.0 : 0.35
+    }
+
+    public var forwardButtonOpacity: Double {
+        return self.canGoForward ? 1.0 : 0.35
     }
 
     public var formattedCurrentTime: String {
@@ -44,6 +59,33 @@ public final class SongDetailsViewModel {
 
     public var formattedDuration: String {
         return Self.formatTime(duration)
+    }
+
+    private func loadCurrentItemAndAutoPlay() {
+        currentTime = .zero
+        duration = .zero
+        audioPlayerService.stop()
+
+        saveCurrentItemAsRecentlyPlayed()
+
+        audioPlayerService.loadPreview(url: item.previewURL)
+    }
+
+    private func handlePlaybackEnded() {
+        if isRepeatEnabled {
+            audioPlayerService.seek(to: .zero)
+            audioPlayerService.play()
+
+            return
+        }
+
+        if canGoForward {
+            playNext()
+
+            return
+        }
+
+        playerState = .paused
     }
 
     private static func formatTime(
@@ -62,12 +104,15 @@ public final class SongDetailsViewModel {
 
     // MARK: - Initializer
     public init(
-        item: SongDetailsItem,
-        audioPlayerService: AudioPlayerServiceProtocol = AudioPlayerService()
+        playbackContext: PlaybackContext,
+        audioPlayerService: AudioPlayerServiceProtocol = AudioPlayerService(),
+        recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
     ) {
-        self.item = item
+        self.playbackContext = playbackContext
         self.audioPlayerService = audioPlayerService
+        self.recentlyPlayedRepository = recentlyPlayedRepository
 
+        isRepeatEnabled = false
         playerState = .idle
         currentTime = .zero
         duration = .zero
@@ -84,12 +129,37 @@ public final class SongDetailsViewModel {
         audioPlayerService.onStateChange = { [weak self] state in
             self?.playerState = state
         }
+
+        audioPlayerService.onPlaybackEnded = { [weak self] in
+            Task { @MainActor [weak self] in
+                self?.handlePlaybackEnded()
+            }
+        }
+    }
+
+    public var item: SongDetailsItem {
+        let currentItem = playbackContext.currentItem
+
+        return .init(
+            title: currentItem?.title ?? "",
+            artistName: currentItem?.artistName ?? "",
+            artworkURL: currentItem?.artworkURL,
+            albumName: currentItem?.albumName,
+            previewURL: currentItem?.previewURL,
+            albumID: currentItem?.albumID
+        )
+    }
+
+    public var canGoBackward: Bool {
+        return playbackContext.hasPrevious
+    }
+
+    public var canGoForward: Bool {
+        return playbackContext.hasNext
     }
 
     public func preparePlayer() async {
-        audioPlayerService.loadPreview(
-            url: item.previewURL
-        )
+        loadCurrentItemAndAutoPlay()
     }
 
     public func togglePlayback() {
@@ -122,7 +192,58 @@ public final class SongDetailsViewModel {
         audioPlayerService.seek(to: targetTime)
     }
 
+    public func toggleRepeat() {
+        isRepeatEnabled.toggle()
+    }
+
+    public func playPrevious() {
+        guard let previousContext = playbackContext.previousContext() else {
+            return
+        }
+
+        playbackContext = previousContext
+        loadCurrentItemAndAutoPlay()
+    }
+
+    public func playNext() {
+        guard let nextContext = playbackContext.nextContext() else {
+            return
+        }
+
+        playbackContext = nextContext
+        loadCurrentItemAndAutoPlay()
+    }
+
     public func stopPlayer() {
         audioPlayerService.stop()
+    }
+
+    public func updatePlaybackContext(
+        _ playbackContext: PlaybackContext
+    ) {
+        self.playbackContext = playbackContext
+
+        loadCurrentItemAndAutoPlay()
+    }
+
+    private func saveCurrentItemAsRecentlyPlayed() {
+        guard let currentItem = playbackContext.currentItem else {
+            return
+        }
+
+        let song = RecentlyPlayedSong(
+            id: currentItem.id,
+            title: currentItem.title,
+            artistName: currentItem.artistName,
+            artworkURL: currentItem.artworkURL,
+            previewURL: currentItem.previewURL,
+            albumName: currentItem.albumName,
+            albumID: currentItem.albumID,
+            playedAt: Date()
+        )
+
+        Task {
+            try? await recentlyPlayedRepository.save(song: song)
+        }
     }
 }

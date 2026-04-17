@@ -13,6 +13,7 @@ final class AudioPlayerServiceSpy: AudioPlayerServiceProtocol {
     // MARK: - Properties
     var onProgressUpdate: ((Double, Double) -> Void)?
     var onStateChange: ((AudioPlayerState) -> Void)?
+    var onPlaybackEnded: (() -> Void)?
 
     var loadPreviewCallCount: Int = .zero
     var playCallCount: Int = .zero

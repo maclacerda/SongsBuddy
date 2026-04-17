@@ -106,22 +106,23 @@ public struct SongsView: View {
                 }
             }
             .navigationDestination(item: $selectedSongForDetails) { item in
-                let item = SongDetailsItem(
-                    title: item.title,
-                    artistName: item.artistName,
-                    artworkURL: item.artworkURL,
-                    albumName: item.albumName,
-                    previewURL: item.previewURL,
-                    albumID: item.albumID
-                )
+                let sourceItems = viewModel.currentVisibleItems
 
-                let viewModel = SongDetailsViewModel(
-                    item: item
-                )
+                if let playbackContext = self.playbackContext(
+                    for: item,
+                    within: sourceItems
+                ) {
+                    let viewModel = SongDetailsViewModel(
+                        playbackContext: playbackContext,
+                        recentlyPlayedRepository: recentlyPlayedRepository
+                    )
 
-                SongDetailsView(
-                    viewModel: viewModel
-                )
+                    SongDetailsView(
+                        viewModel: viewModel
+                    )
+                } else {
+                    EmptyView()
+                }
             }
             .overlay {
                 if isShowingMoreOptions, let selectedSong {
@@ -156,6 +157,7 @@ public struct SongsView: View {
                 }
             }
         }
+        .preferredColorScheme(.dark)
         .task {
             await viewModel.refreshRecentlyPlayed()
             await viewModel.loadInitialSongs()
@@ -397,5 +399,36 @@ private extension SongsView {
         }
         .frame(maxWidth: .infinity)
         .padding(SBSpacingToken.spacing24.value)
+    }
+}
+
+// MARK: - Private Helpers
+private extension SongsView {
+    func playbackContext(
+        for selectedItem: SongRowItem,
+        within items: [SongRowItem]
+    ) -> PlaybackContext? {
+        let playbackItems = items.map { item in
+            return PlaybackQueueItem(
+                id: item.id,
+                title: item.title,
+                artistName: item.artistName,
+                artworkURL: item.artworkURL,
+                previewURL: item.previewURL,
+                albumName: item.albumName,
+                albumID: item.albumID
+            )
+        }
+
+        guard let currentIndex = playbackItems.firstIndex(where: { item in
+            return item.id == selectedItem.id
+        }) else {
+            return nil
+        }
+
+        return .init(
+            items: playbackItems,
+            currentIndex: currentIndex
+        )
     }
 }
