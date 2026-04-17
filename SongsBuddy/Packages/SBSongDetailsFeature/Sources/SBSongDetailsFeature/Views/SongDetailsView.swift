@@ -206,10 +206,17 @@ private extension SongDetailsView {
     }
 
     var repeatButton: some View {
-        Image(systemName: "repeat")
-            .font(.system(size: 24, weight: .regular))
-            .foregroundStyle(SBColors.primaryIcon)
-            .frame(width: 24, height: 24)
+        Button {
+            viewModel.toggleRepeat()
+        } label: {
+            Image("ic-repeat")
+                .opacity(viewModel.repeatButtonOpacity)
+                .frame(
+                    width: 24,
+                    height: 24
+                )
+        }
+        .buttonStyle(.plain)
     }
 
     var progressView: some View {
@@ -246,35 +253,47 @@ private extension SongDetailsView {
     }
 
     var controlsView: some View {
-        HStack {
-            Image(systemName: "backward.fill")
-                .font(.system(size: 28, weight: .regular))
-                .foregroundStyle(SBColors.primaryIcon)
-                .frame(width: 36, height: 36)
-
+        HStack(spacing: 28) {
             Spacer()
+
+            Button {
+                viewModel.playPrevious()
+            } label: {
+                Image("ic-backward")
+                    .opacity(viewModel.backwardButtonOpacity)
+                    .frame(
+                        width: 36,
+                        height: 36
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(!viewModel.canGoBackward)
 
             Button {
                 viewModel.togglePlayback()
             } label: {
-                ZStack {
-                    Circle()
-                        .fill(SBColors.searchBackground)
-                        .frame(width: 72, height: 72)
-
-                    Image(systemName: viewModel.playPauseSystemImage)
-                        .font(.system(size: 28, weight: .regular))
-                        .foregroundStyle(SBColors.primaryIcon)
-                }
+                Image(viewModel.playPauseSystemImage)
             }
             .buttonStyle(.plain)
+            .frame(
+                width: 72,
+                height: 72
+            )
+
+            Button {
+                viewModel.playNext()
+            } label: {
+                Image("ic-forward")
+                    .opacity(viewModel.backwardButtonOpacity)
+                    .frame(
+                        width: 36,
+                        height: 36
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(!viewModel.canGoForward)
 
             Spacer()
-
-            Image(systemName: "forward.fill")
-                .font(.system(size: 28, weight: .regular))
-                .foregroundStyle(SBColors.primaryIcon)
-                .frame(width: 36, height: 36)
         }
         .padding(.horizontal, SBSpacingToken.spacing24.value)
     }

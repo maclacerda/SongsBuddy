@@ -12,6 +12,7 @@ public protocol AudioPlayerServiceProtocol: AnyObject {
     // MARK: - Properties
     var onProgressUpdate: ((Double, Double) -> Void)? { get set }
     var onStateChange: ((AudioPlayerState) -> Void)? { get set }
+    var onPlaybackEnded: (() -> Void)? { get set }
 
     // MARK: - Methods
     func loadPreview(
