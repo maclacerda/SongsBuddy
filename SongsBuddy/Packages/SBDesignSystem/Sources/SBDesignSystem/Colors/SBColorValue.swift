@@ -125,6 +125,9 @@ private extension SBElementColorToken {
         switch self {
         case .element07:
             return Color(hex: "#FFFFFF")
+
+        case .element03:
+            return Color(hex: "#545454")
         }
     }
 
@@ -133,6 +136,9 @@ private extension SBElementColorToken {
         switch self {
         case .element07:
             return Color(hex: "#111111")
+
+        case .element03:
+            return Color(hex: "#545454")
         }
     }
 }

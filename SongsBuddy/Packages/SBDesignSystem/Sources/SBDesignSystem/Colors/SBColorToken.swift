@@ -77,6 +77,9 @@ public enum SBTextColorToken: Sendable {
 public enum SBElementColorToken: Sendable {
     /// Primary icon/button color.
     case element07
+
+    /// Secondary icon/button color
+    case element03
 }
 
 /// Defines alpha-inverted color tokens.

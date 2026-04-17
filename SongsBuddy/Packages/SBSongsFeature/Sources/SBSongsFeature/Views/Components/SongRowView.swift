@@ -57,10 +57,10 @@ public struct SongRowView: View {
                     onMoreTapped()
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundStyle(SBColors.tertiaryText)
+                        .foregroundStyle(SBColors.secondaryIcon)
                         .frame(
-                            width: 36,
-                            height: 36
+                            width: 20,
+                            height: 20
                         )
                 }
             }

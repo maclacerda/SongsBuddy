@@ -33,6 +33,9 @@ public enum SBColors {
     /// Primary icon color.
     public static let primaryIcon = SBColorToken.dark(.element(.element07)).value
 
+    /// Secondary icon color.
+    public static let secondaryIcon = SBColorToken.dark(.element(.element03)).value
+
     // MARK: - Search
 
     /// Search bar background.

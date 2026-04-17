@@ -11,18 +11,24 @@ import SwiftUI
 struct SBSongsHeaderView: View {
     // MARK: - Properties
     let isCollapsed: Bool
+    let onCollapsedSearchTapped: () -> Void
+
     @Binding var searchText: String
+    @FocusState.Binding var isSearchFieldFocused: Bool
 
     // MARK: - Body
     var body: some View {
         Group {
-            if self.isCollapsed {
+            if isCollapsed {
                 collapsedHeader
             } else {
                 expandedHeader
             }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(
+            maxWidth: .infinity,
+            alignment: .top
+        )
         .background(SBColors.screenBackground)
     }
 }
@@ -48,23 +54,34 @@ private extension SBSongsHeaderView {
             HStack(
                 spacing: SBSpacingToken.spacing8.value
             ) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 24, weight: .regular))
-                    .foregroundStyle(SBColors.searchIcon)
+                VStack {
+                    Image(systemName: "magnifyingglass")
+                        .font(
+                            .system(
+                                size: 18,
+                                weight: .regular
+                            )
+                        )
+                        .foregroundStyle(SBColors.searchIcon)
+                }
+                .frame(
+                    width: 44,
+                    height: 44,
+                    alignment: .center
+                )
 
                 TextField(
                     "",
-                    text: self.$searchText,
-                    prompt: Text(
-                        "Search"
-                    )
-                    .foregroundStyle(SBColors.searchPlaceholder)
+                    text: $searchText,
+                    prompt: Text("Search")
+                        .foregroundStyle(SBColors.searchPlaceholder)
                 )
                 .font(.sb(.text16))
                 .foregroundStyle(SBColors.primaryText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .tint(SBColors.primaryText)
+                .focused($isSearchFieldFocused)
 
                 Spacer(
                     minLength: .zero
@@ -93,13 +110,16 @@ private extension SBSongsHeaderView {
                 Spacer()
 
                 Text("Songs")
-                    .font(.sb(.text16))
+                    .font(.sb(.display16))
                     .foregroundStyle(SBColors.primaryText)
 
                 Spacer()
 
                 Color.clear
-                    .frame(width: 48, height: 48)
+                    .frame(
+                        width: 48,
+                        height: 48
+                    )
             }
             .frame(height: 48)
             .padding(.horizontal, SBSpacingToken.spacing20.value)
@@ -108,14 +128,15 @@ private extension SBSongsHeaderView {
     }
 
     var searchButton: some View {
-        ZStack {
-            Circle()
-                .fill(SBColors.searchBackground)
-                .frame(width: 48, height: 48)
-
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 24, weight: .regular))
-                .foregroundStyle(SBColors.primaryIcon)
+        Button {
+            onCollapsedSearchTapped()
+        } label: {
+            Image("ic-search")
+                .frame(
+                    width: 48,
+                    height: 48
+                )
         }
+        .buttonStyle(.plain)
     }
 }
