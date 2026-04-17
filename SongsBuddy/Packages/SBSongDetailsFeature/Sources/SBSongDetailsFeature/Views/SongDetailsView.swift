@@ -8,6 +8,7 @@
 import SBAlbumFeature
 import SBData
 import SBDesignSystem
+import SBDomain
 import SwiftUI
 
 public struct SongDetailsView: View {
@@ -139,7 +140,34 @@ public struct SongDetailsView: View {
                 )
 
                 AlbumDetailsView(
-                    viewModel: viewModel
+                    viewModel: viewModel,
+                    onSongSelected: { selectedSong, songs in
+                        let playbackItems = songs.map {
+                            PlaybackQueueItem(
+                                id: $0.id,
+                                title: $0.title,
+                                artistName: $0.artistName,
+                                artworkURL: $0.artworkURL,
+                                previewURL: $0.previewURL,
+                                albumName: $0.albumName,
+                                albumID: $0.albumID
+                            )
+                        }
+
+                        guard let selectedIndex = playbackItems.firstIndex(where: {
+                            $0.id == selectedSong.id
+                        }) else {
+                            return
+                        }
+
+                        let playbackContext = PlaybackContext(
+                            items: playbackItems,
+                            currentIndex: selectedIndex
+                        )
+
+                        self.viewModel.updatePlaybackContext(playbackContext)
+                        isShowingAlbum = false
+                    }
                 )
             }
         }
@@ -223,7 +251,7 @@ private extension SongDetailsView {
         VStack(
             spacing: SBSpacingToken.spacing8.value
         ) {
-            Slider(
+            SBSlider(
                 value: Binding(
                     get: {
                         return viewModel.progressValue
@@ -234,9 +262,12 @@ private extension SongDetailsView {
                         )
                     }
                 ),
-                in: 0...1
+                in: 0...1,
+                minimumTrackColor: UIColor(SBColors.progressFill),
+                maximumTrackColor: UIColor(SBColors.searchBackground),
+                thumbColor: UIColor(SBColors.primaryText)
             )
-            .tint(SBColors.progressFill)
+            .frame(height: 24)
 
             HStack {
                 Text(viewModel.formattedCurrentTime)
@@ -272,7 +303,9 @@ private extension SongDetailsView {
             Button {
                 viewModel.togglePlayback()
             } label: {
-                Image(viewModel.playPauseSystemImage)
+                Image(viewModel.playPauseIcon)
+                    .resizable()
+                    .scaledToFit()
             }
             .buttonStyle(.plain)
             .frame(

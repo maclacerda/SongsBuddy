@@ -31,7 +31,7 @@ public final class SongDetailsViewModel {
         return currentTime / duration
     }
 
-    public var playPauseSystemImage: String {
+    public var playPauseIcon: String {
         switch self.playerState {
         case .playing:
             return "ic-pause"

@@ -11,12 +11,15 @@ import SwiftUI
 public struct AlbumDetailsView: View {
     // MARK: - Properties
     @State private var viewModel: AlbumDetailsViewModel
+    private let onSongSelected: ((AlbumSongRowItem, [AlbumSongRowItem]) -> Void)?
 
     // MARK: - Initializer
     public init(
-        viewModel: AlbumDetailsViewModel
+        viewModel: AlbumDetailsViewModel,
+        onSongSelected: ((AlbumSongRowItem, [AlbumSongRowItem]) -> Void)? = nil
     ) {
         self._viewModel = State(initialValue: viewModel)
+        self.onSongSelected = onSongSelected
     }
 
     public var body: some View {
@@ -79,7 +82,15 @@ private extension AlbumDetailsView {
 
                 LazyVStack(spacing: .zero) {
                     ForEach(item.songs) { song in
-                        AlbumSongRowView(item: song)
+                        Button {
+                            if let songs = viewModel.item?.songs,
+                               let onSongSelected {
+                                onSongSelected(song, songs)
+                            }
+                        } label: {
+                            AlbumSongRowView(item: song)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.top, SBSpacingToken.spacing40.value)

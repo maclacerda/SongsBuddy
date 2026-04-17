@@ -59,10 +59,11 @@ public struct MoreOptionsSheetView: View {
                 HStack(
                     spacing: .zero
                 ) {
-                    Image(systemName: "square.stack")
-                        .font(.system(size: 24, weight: .regular))
-                        .foregroundStyle(SBColors.primaryIcon)
-                        .frame(width: 24, height: 24)
+                    Image("ic-setlist")
+                        .frame(
+                            width: 24,
+                            height: 24
+                        )
 
                     Text("View Album")
                         .font(.sb(.text16))
@@ -83,7 +84,7 @@ public struct MoreOptionsSheetView: View {
                 } label: {
                     HStack(spacing: .zero) {
                         Image(systemName: "clock.badge.xmark")
-                            .font(.system(size: 24, weight: .regular))
+                            .font(.system(size: 20, weight: .regular))
                             .foregroundStyle(SBColors.primaryIcon)
                             .frame(
                                 width: 24,
@@ -101,6 +102,7 @@ public struct MoreOptionsSheetView: View {
                     .frame(height: 56)
                 }
                 .buttonStyle(.plain)
+                .padding(.bottom, 4)
             }
 
             Spacer(minLength: .zero)
