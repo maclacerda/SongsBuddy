@@ -18,6 +18,8 @@ let package = Package(
         .package(path: "../SBDomain"),
         .package(path: "../SBSongDetailsFeature"),
         .package(path: "../SBTestUtils"),
+        .package(path: "../SBAlbumFeature"),
+        .package(path: "../SBData"),
 
         /// External Dependencies
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.6")

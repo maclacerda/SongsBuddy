@@ -18,6 +18,7 @@ let package = Package(
         .package(path: "../SBDomain"),
         .package(path: "../SBAlbumFeature"),
         .package(path: "../SBData"),
+        .package(path: "../SBTestUtils"),
 
         /// External Dependencies
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.6")
@@ -37,7 +38,8 @@ let package = Package(
             dependencies: [
                 "SBSongDetailsFeature",
 
-                    .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+                .product(name: "SBTestUtils", package: "SBTestUtils"),
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
             ]
         )
     ]
