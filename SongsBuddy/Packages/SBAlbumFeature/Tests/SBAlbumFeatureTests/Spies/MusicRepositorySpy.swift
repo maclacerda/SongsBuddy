@@ -17,6 +17,7 @@ final class MusicRepositorySpy: MusicRepositoryProtocol {
     )
 
     var fetchAlbumSongsResult: [Song] = []
+    var fetchAlbumSongsCallCount: Int = .zero
 
     // MARK: - Methods
     func searchSongs(
@@ -29,6 +30,8 @@ final class MusicRepositorySpy: MusicRepositoryProtocol {
     func fetchAlbumSongs(
         albumID: Int
     ) async throws -> [Song] {
+        fetchAlbumSongsCallCount += 1
+
         return fetchAlbumSongsResult
     }
 }
