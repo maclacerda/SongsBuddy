@@ -22,20 +22,31 @@ public struct SongsView: View {
     @State private var isShowingMoreOptions: Bool = false
     @State private var isShowingAlbumFromSheet: Bool = false
     @State private var isShowingRemoveRecentConfirmation: Bool = false
+    @State private var isSearchManuallyExpanded: Bool = false
+    @FocusState private var isSearchFieldFocused: Bool
 
     private let recentlyPlayedRepository: any RecentlyPlayedRepositoryProtocol
 
     private let expandedHeaderHeight: CGFloat = 124
-    private let collapsedHeaderHeight: CGFloat = 104
+    private let collapsedHeaderHeight: CGFloat = 50
     private let contentTopSpacing: CGFloat = 16
     private let collapseThreshold: CGFloat = 40
 
-    private var isCollapsed: Bool {
-        return self.scrollOffset > self.collapseThreshold
+    private var collapseProgress: CGFloat {
+        guard !isSearchManuallyExpanded else {
+            return .zero
+        }
+
+        let progress = min(
+            max(scrollOffset / collapseThreshold, .zero),
+            1
+        )
+
+        return progress
     }
 
     private var currentHeaderHeight: CGFloat {
-        return self.isCollapsed ? self.collapsedHeaderHeight : self.expandedHeaderHeight
+        return collapseProgress > 0.5 ? (collapsedHeaderHeight + contentTopSpacing) : expandedHeaderHeight
     }
 
     // MARK: - Initializer
@@ -56,13 +67,29 @@ public struct SongsView: View {
                 contentView
 
                 SBSongsHeaderView(
-                    isCollapsed: self.isCollapsed,
-                    searchText: self.$viewModel.searchText
+                    collapseProgress: collapseProgress,
+                    onCollapsedSearchTapped: {
+                        isSearchManuallyExpanded = true
+
+                        DispatchQueue.main.async {
+                            isSearchFieldFocused = true
+                        }
+                    },
+                    searchText: $viewModel.searchText,
+                    isSearchFieldFocused: $isSearchFieldFocused
                 )
-                .frame(height: self.currentHeaderHeight, alignment: .top)
-                .padding(.horizontal, SBSpacingToken.spacing20.value)
-                .background(SBColors.screenBackground)
-                .animation(.easeInOut(duration: 0.18), value: self.isCollapsed)
+                .frame(
+                    height: currentHeaderHeight,
+                    alignment: .top
+                )
+                .animation(
+                    .interactiveSpring(
+                        response: 0.28,
+                        dampingFraction: 0.88,
+                        blendDuration: 0.12
+                    ),
+                    value: collapseProgress
+                )
             }
             .navigationDestination(isPresented: $isShowingAlbumFromSheet) {
                 if let selectedSong,
@@ -129,7 +156,6 @@ public struct SongsView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .task {
             await viewModel.refreshRecentlyPlayed()
             await viewModel.loadInitialSongs()
@@ -142,13 +168,19 @@ public struct SongsView: View {
         .onChange(of: viewModel.searchText) { _, _ in
             viewModel.scheduleSearch()
         }
+        .onChange(of: isSearchFieldFocused) { _, isFocused in
+            if !isFocused,
+               viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                isSearchManuallyExpanded = false
+            }
+        }
         .animation(
             .easeInOut(duration: 0.2),
             value: isShowingMoreOptions
         )
         .alert(
             "Remove from Recently Played?",
-            isPresented: self.$isShowingRemoveRecentConfirmation
+            isPresented: $isShowingRemoveRecentConfirmation
         ) {
             Button("Cancel", role: .cancel) {}
 
@@ -158,7 +190,7 @@ public struct SongsView: View {
                 }
 
                 Task {
-                    await self.viewModel.removeRecentlyPlayed(
+                    await viewModel.removeRecentlyPlayed(
                         songID: selectedSong.id
                     )
                 }
@@ -172,7 +204,7 @@ public struct SongsView: View {
 // MARK: - Views
 private extension SongsView {
     var contentView: some View {
-        switch self.viewModel.state {
+        switch viewModel.state {
         case .idle, .loading:
             AnyView(
                 VStack {
@@ -200,7 +232,7 @@ private extension SongsView {
                         spacing: .zero
                     ) {
                         Color.clear
-                            .frame(height: self.currentHeaderHeight + self.contentTopSpacing)
+                            .frame(height: currentHeaderHeight + contentTopSpacing)
 
                         listView(with: items)
                     }
@@ -210,11 +242,16 @@ private extension SongsView {
                         ScrollOffsetObserver { offset in
                             let normalizedOffset = max(offset, .zero)
 
-                            guard abs(normalizedOffset - self.scrollOffset) > 0.5 else {
+                            guard abs(normalizedOffset - scrollOffset) > 0.5 else {
                                 return
                             }
 
-                            self.scrollOffset = normalizedOffset
+                            scrollOffset = normalizedOffset
+
+                            if normalizedOffset > collapseThreshold {
+                                isSearchManuallyExpanded = false
+                                isSearchFieldFocused = false
+                            }
                         }
                         .frame(
                             width: .zero,
@@ -247,7 +284,7 @@ private extension SongsView {
                 .padding(.bottom, SBSpacingToken.spacing12.value)
 
             LazyVStack(spacing: .zero) {
-                ForEach(self.viewModel.recentlyPlayedItems) { item in
+                ForEach(viewModel.recentlyPlayedItems) { item in
                     SongRowView(
                         item: item,
                         onTap: {
@@ -344,7 +381,7 @@ private extension SongsView {
 
             Button("Retry") {
                 Task {
-                    await self.viewModel.retry()
+                    await viewModel.retry()
                 }
             }
             .font(.sb(.text16))

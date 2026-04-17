@@ -10,19 +10,67 @@ import SwiftUI
 
 struct SBSongsHeaderView: View {
     // MARK: - Properties
-    let isCollapsed: Bool
+    let collapseProgress: CGFloat
+    let onCollapsedSearchTapped: () -> Void
+
     @Binding var searchText: String
+    @FocusState.Binding var isSearchFieldFocused: Bool
+
+    /// Header animation attributes
+    private var collapsedOpacity: Double {
+        return Double(collapseProgress)
+    }
+
+    private var expandedOpacity: Double {
+        return Double(1 - collapseProgress)
+    }
+
+    private var expandedOffsetY: CGFloat {
+        return -16 * collapseProgress
+    }
+
+    private var collapsedOffsetY: CGFloat {
+        return 12 * (1 - collapseProgress)
+    }
+
+    private var expandedScale: CGFloat {
+        return 1 - (0.04 * collapseProgress)
+    }
+
+    private var collapsedScale: CGFloat {
+        return 0.96 + (0.04 * collapseProgress)
+    }
+
+    private var isCollapsed: Bool {
+        return collapseProgress > 0.5
+    }
+
+    private var containerHeight: CGFloat {
+        return isCollapsed ? 58 : 124
+    }
 
     // MARK: - Body
     var body: some View {
-        Group {
-            if self.isCollapsed {
-                collapsedHeader
-            } else {
-                expandedHeader
-            }
+        ZStack(alignment: .top) {
+            expandedHeader
+                .opacity(expandedOpacity)
+                .scaleEffect(expandedScale, anchor: .top)
+                .offset(y: expandedOffsetY)
+                .allowsHitTesting(collapseProgress < 0.5)
+
+            collapsedHeader
+                .opacity(collapsedOpacity)
+                .scaleEffect(collapsedScale, anchor: .top)
+                .offset(y: collapsedOffsetY)
+                .allowsHitTesting(collapseProgress > 0.5)
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(
+            maxWidth: .infinity,
+            minHeight: containerHeight,
+            maxHeight: containerHeight,
+            alignment: .top
+        )
+        .clipped()
         .background(SBColors.screenBackground)
     }
 }
@@ -34,88 +82,108 @@ private extension SBSongsHeaderView {
             alignment: .leading,
             spacing: .zero
         ) {
-            Spacer()
-                .frame(height: 9.5)
-
-            Text("Songs")
-                .font(.sb(.display24))
-                .foregroundStyle(SBColors.primaryText)
-                .padding(.leading, SBSpacingToken.spacing24.value)
-
-            Spacer()
-                .frame(height: 9.5)
-
-            HStack(
-                spacing: SBSpacingToken.spacing8.value
-            ) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 24, weight: .regular))
-                    .foregroundStyle(SBColors.searchIcon)
-
-                TextField(
-                    "",
-                    text: self.$searchText,
-                    prompt: Text(
-                        "Search"
+            VStack(spacing: .zero) {
+                Text("Songs")
+                    .font(.sb(.display24))
+                    .foregroundStyle(SBColors.primaryText)
+                    .frame(
+                        maxWidth: .infinity,
+                        alignment: .leading
                     )
-                    .foregroundStyle(SBColors.searchPlaceholder)
-                )
-                .font(.sb(.text16))
-                .foregroundStyle(SBColors.primaryText)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .tint(SBColors.primaryText)
-
-                Spacer(
-                    minLength: .zero
-                )
             }
-            .padding(.horizontal, SBSpacingToken.spacing16.value)
-            .frame(height: 60)
-            .background(SBColors.searchBackground)
-            .clipShape(
-                RoundedRectangle(
-                    cornerRadius: SBRadiusToken.radius12.value
+            .frame(height: 48)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 20)
+            .padding(.horizontal, 24)
+
+            VStack(
+                spacing: .zero
+            ) {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .font(
+                            .system(
+                                size: 24,
+                                weight: .regular
+                            )
+                        )
+                        .foregroundStyle(SBColors.searchIcon)
+                        .frame(
+                            width: 24,
+                            height: 24
+                        )
+                        .padding(.leading, 16)
+
+                    TextField(
+                        "",
+                        text: $searchText,
+                        prompt: Text("Search")
+                            .foregroundStyle(SBColors.searchPlaceholder)
+                    )
+                    .font(.sb(.text16))
+                    .foregroundStyle(SBColors.primaryText)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .tint(SBColors.primaryText)
+                    .focused($isSearchFieldFocused)
+                    .frame(
+                        maxWidth: .infinity
+                    )
+                }
+                .frame(height: 44)
+                .frame(maxWidth: .infinity)
+                .background(SBColors.searchBackground)
+                .clipShape(
+                    RoundedRectangle(
+                        cornerRadius: SBRadiusToken.radius12.value
+                    )
                 )
+                .padding(.horizontal, 20)
+            }
+            .frame(height: 60)
+            .frame(
+                maxWidth: .infinity,
+                alignment: .center
             )
-            .padding(.horizontal, SBSpacingToken.spacing20.value)
         }
     }
 
     var collapsedHeader: some View {
-        VStack(
-            alignment: .leading,
-            spacing: .zero
-        ) {
-            HStack(spacing: .zero) {
-                searchButton
+        HStack(spacing: .zero) {
+            searchButton
 
-                Spacer()
+            Spacer()
 
-                Text("Songs")
-                    .font(.sb(.text16))
-                    .foregroundStyle(SBColors.primaryText)
+            Text("Songs")
+                .font(.sb(.display16))
+                .foregroundStyle(SBColors.primaryText)
 
-                Spacer()
+            Spacer()
 
-                Color.clear
-                    .frame(width: 48, height: 48)
-            }
-            .frame(height: 48)
-            .padding(.horizontal, SBSpacingToken.spacing20.value)
-            .padding(.top, 28)
+            Color.clear
+                .frame(
+                    width: 48,
+                    height: 48
+                )
         }
+        .frame(height: 50)
+        .padding(.horizontal, 20)
+        .frame(
+            maxWidth: .infinity,
+            alignment: .leading
+        )
     }
 
     var searchButton: some View {
-        ZStack {
-            Circle()
-                .fill(SBColors.searchBackground)
-                .frame(width: 48, height: 48)
-
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 24, weight: .regular))
-                .foregroundStyle(SBColors.primaryIcon)
+        Button {
+            onCollapsedSearchTapped()
+        } label: {
+            Image("ic-search")
+                .frame(
+                    width: 48,
+                    height: 48
+                )
         }
+        .buttonStyle(.plain)
     }
 }
