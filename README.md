@@ -1,7 +1,6 @@
 # 🎵 SongsBuddy
 
 ![Build Status](https://github.com/maclacerda/SongsBuddy/actions/workflows/ios-ci.yml/badge.svg)
-[![codecov](https://codecov.io/github/maclacerda/SongsBuddy/graph/badge.svg?token=XL3dbFjxqW)](https://codecov.io/github/maclacerda/SongsBuddy)
 ![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)
 ![Swift](https://img.shields.io/badge/Swift-6-orange.svg)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-native-green.svg)
@@ -23,6 +22,41 @@ This project was built as part of a technical challenge, focusing on:
 - UI fidelity based on design specifications
 
 ---
+
+## ▶️ How to Run the Project
+
+### Requirements
+
+- Xcode 26 or newer
+- iOS 17+
+- macOS compatible with Xcode 26
+
+### Steps
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/<your-username>/SongsBuddy.git
+```
+
+2.	Open the project:
+
+```bash
+open SongsBuddy.xcodeproj
+```
+
+3.	Select a simulator (e.g., iPhone 17 Pro)
+
+4.	Run the project:
+
+```bash
+⌘ + R
+```
+
+**Notes**
+
+    •	The project uses modern Swift features and requires Xcode 26+
+    •	Swift Package dependencies will resolve automatically on first build
 
 ## 🧱 Architecture
 
@@ -205,8 +239,21 @@ A future improvement would be to execute tests for all modules individually.
 - Move all assets (icons) fully into Design System
 - Add support for `light` mode
 - Add fullscreen charts animation when song in reproduction
+- Introduce Tuist (or a similar project generation tool) to better manage modularization, improve scalability, and standardize project configuration across environments
 
 ---
+
+## 🤖 AI Usage
+
+AI tools were used during development to assist with specific implementation details.
+
+ChatGPT was primarily used to:
+
+- Refine UI animations
+- Improve code stability and edge-case handling
+- Explore alternative implementation approaches
+
+All architectural decisions, code structure, and final implementations were reviewed and validated manually to ensure correctness and alignment with the project goals.
 
 ## 🛠 Tech Stack
 
